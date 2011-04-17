@@ -28,6 +28,14 @@ import subprocess
 
 from sympy.core.cache import clear_cache
 
+import codecs
+
+# Manually load 'iterables' module, passing out sympy
+import imp
+fn_iterables  = os.path.join(os.path.dirname(__file__), "iterables.py")
+iterables = imp.load_source("iterables", fn_iterables)
+any, all = iterables.any, iterables.all
+
 # Use sys.stdout encoding for ouput.
 # This was only added to Python's doctest in Python 2.6, so we must duplicate
 # it here to make utf8 files work in Python 2.5.
@@ -965,6 +973,268 @@ SymPyDocTestRunner._SymPyDocTestRunner__patched_linecache_getlines = \
 SymPyDocTestRunner._SymPyDocTestRunner__run = DocTestRunner._DocTestRunner__run
 SymPyDocTestRunner._SymPyDocTestRunner__record_outcome = \
     DocTestRunner._DocTestRunner__record_outcome
+
+def wikitest(*paths, **kwargs):
+    r"""
+    Runs wikitest in files in the wiki_dir directory.
+
+    The files are to be passing throu the test contain the special directives.
+    For reStructedText comments is shaped as:
+        .. wikitest release
+    For markdown:
+        <!-- wikitest release -->
+
+    "wikitest release" directive means that tests for current wiki-page have
+    to be passed against release version only.
+    "wikitest master" - against master.
+    "wikitest master,release" - against master and release version
+
+    To run tests  only for a few files, `paths` is used. If paths=[] then all
+    files with directives tests.
+
+    Note:
+       o paths can be entered in native system format or in unix,
+         forward-slash format.
+       o files that are on the blacklist can be tested by providing
+         their path; they are only excluded if no paths are given.
+
+    Examples:
+
+    >> froms sympy.utilities.runtests import wikitest
+
+    Run all tests:
+    >> wikitest()
+
+    """
+    normal = kwargs.get("normal", False)
+    verbose = kwargs.get("verbose", False)
+    againstlist = kwargs.get("againstlist", ["master"])
+    blacklist = kwargs.get("blacklist", [])
+    blacklist.extend([])
+    blacklist = convert_to_native_paths(blacklist)
+    wiki_dir = kwargs["wiki_dir"]
+
+    r = PyTestReporter(verbose)
+    t = SymPyWikiTests(r, normal)
+    failed_total = False
+
+    for against in againstlist:
+        t.set_against_dir(against, kwargs["%s_dir" % against])
+        t.load_sympy_version()
+        t.setup_pprint()
+
+        test_files = t.get_test_files(wiki_dir, pat=r"^.*\.(md|rest|mediawiki)$",init_only=False)
+        not_blacklisted = [f for f in test_files
+                             if not any(b in f for b in blacklist)]
+        if len(paths) == 0:
+            matched = not_blacklisted
+        else:
+            # Take only what was requested as long as it's not on the blacklist.
+            # Paths were already made native in *py tests so don't repeat here.
+            # There's no chance of having a *py file slip through since we
+            # only have *txt files in test_files.
+            matched =  []
+            for f in not_blacklisted:
+                basename = os.path.basename(f)
+                for p in paths:
+                    if p in f or fnmatch(basename, p):
+                        matched.append(f)
+                        break
+
+        first_report = True
+        for txt_file in matched:
+            if not os.path.isfile(txt_file):
+                continue
+            basename = os.path.basename(txt_file)
+            old_displayhook = sys.displayhook
+            try:
+                out = t.testfile(txt_file, module_relative=False,
+                        optionflags=pdoctest.ELLIPSIS | \
+                        pdoctest.NORMALIZE_WHITESPACE)
+            finally:
+                # make sure we return to the original displayhook in case some
+                # doctest has changed that
+                sys.displayhook = old_displayhook
+
+            txtfailed, tested = out
+            if txtfailed:
+                failed_total = True
+            if tested:
+                if first_report:
+                    first_report = False
+                    msg = 'txt wikitest start (against "%s")' % against
+                    lhead = '='*((80 - len(msg))//2 - 1)
+                    rhead = '='*(79 - len(msg) - len(lhead) - 1)
+                    print ' '.join([lhead, msg, rhead])
+                    print
+                # use as the id, everything past the first 'sympy'
+                file_id = txt_file[txt_file.find('sympy') + len('sympy') + 1:]
+                print file_id, # get at least the name out so it is know who is being tested
+                wid = 80 - len(file_id) - 1 #update width
+                test_file = '[%s]' % (tested)
+                report = '[%s]' % (txtfailed or 'OK')
+                print ''.join([test_file,' '*(wid-len(test_file)-len(report)), report])
+
+    if failed_total:
+        print
+        print("DO *NOT* COMMIT!")
+    return not failed_total
+
+class SymPyWikiTests(object):
+
+    def __init__(self, reporter, normal):
+        self._count = 0
+        #self._root_dir = sympy_dir
+        self._reporter = reporter
+        #self._reporter.root_dir(self._root_dir)
+        self._normal = normal
+
+        self._testfiles = []
+
+    def set_against_dir(self, against, against_dir):
+        """Set against dir.
+
+        While testing this dir will be injected into the test for catching right
+        version of SymPy (release, or master)
+        """
+        self.against = against
+        self.against_dir = against_dir
+
+    def get_test_files(self, dir, pat=r'^.*\.md$', init_only=True):
+        """
+        Returns the list of wiki-pages (default) from which docstrings
+        will be tested which are at or below directory `dir`.
+        """
+        re_directives = []
+        re_directives.append(re.compile(r"<!--\s+wikitest\s+(?P<against>[a-z,]+)\s+-->", re.M))
+        re_directives.append(re.compile(r"\.\.\s+wikitest\s+(?P<against>[a-z,]+)\s+$", re.M))
+        re_filename = re.compile(pat)
+
+        def _fnmatch(fn):
+            if re_filename.match(fn):
+                return True
+            return False
+        def has_directive(path, fn):
+            """
+            Checks if file contain directive.
+            """
+            fn = os.path.join(path, fn)
+            f = codecs.open(fn, mode="r", encoding="utf8")
+            s = f.read()
+            f.close()
+            for re_directive in re_directives:
+                m = re_directive.search(s)
+                if m:
+                    against_permitted = m.group("against").split(",")
+                    if self.against in against_permitted:
+                        return True
+            return False
+
+        #dir = os.path.join(self._root_dir, convert_to_native_paths([dir])[0])
+        dir = os.path.join("/", convert_to_native_paths([dir])[0])
+
+        g = []
+        for path, folders, files in os.walk(dir):
+            g.extend([os.path.join(path, f) for f in files
+                      if _fnmatch(f) and has_directive(path, f)])
+        return [sys_normcase(gi) for gi in g]
+
+    def testfile(self, filename, module_relative=True, name=None, package=None,
+                 globs=None, verbose=None, report=True, optionflags=0,
+                 extraglobs=None, raise_on_error=False,
+                 parser=pdoctest.DocTestParser(), encoding=None):
+        """
+        See docstring in sympytestfile()
+        """
+        return sympytestfile(filename, module_relative, name, package,
+                 globs, verbose, report, optionflags,
+                 extraglobs, raise_on_error,
+                 parser, encoding)
+
+    def load_sympy_version(self):
+        """
+        Load right SymPy's version.
+        And unload previous if it's needed
+        """
+        for _key in sys.modules.keys():
+            if len(_key.split("sympy")) > 1:
+                del sys.modules[_key]
+        sys.path.insert(0, self.against_dir)
+
+    def setup_pprint(self):
+        try:
+            # master version
+            from sympy import pprint_use_unicode, init_printing
+
+            # force pprint to be in ascii mode in doctests
+            pprint_use_unicode(False)
+
+            # hook our nice, hash-stable strprinter
+            init_printing(pretty_print=False)
+
+        except ImportError:
+            # version 0.6.7
+            from sympy.interactive import pprint_use_unicode, pretty, sstrrepr
+
+            # force pprint to be in ascii mode in doctests
+            pprint_use_unicode(False)
+
+            # use new version of init_printing
+            pretty_print = False
+            order=None
+            use_unicode=None
+
+            if pretty_print:
+                stringify_func = lambda arg: pretty(arg, order=order, use_unicode=use_unicode)
+            else:
+                stringify_func = sstrrepr
+
+            try:
+                import IPython
+
+                ip = IPython.ipapi.get()
+
+                if ip is not None:
+                    def result_display(self, arg):
+                        """IPython's pretty-printer display hook.
+
+                           This function was adapted from:
+
+                            ipython/IPython/hooks.py:155
+
+                        """
+                        if self.rc.pprint:
+                            out = stringify_func(arg)
+
+                            if '\n' in out:
+                                print
+
+                            print out
+                        else:
+                            print repr(arg)
+
+                    ip.set_hook('result_display', result_display)
+                    return
+            except ImportError:
+                pass
+
+            import __builtin__, sys
+
+            def displayhook(arg):
+                """Python's pretty-printer display hook.
+
+                   This function was adapted from:
+
+                    http://www.python.org/dev/peps/pep-0217/
+
+                """
+                if arg is not None:
+                    __builtin__._ = None
+                    print stringify_func(arg)
+                    __builtin__._ = arg
+
+            sys.displayhook = displayhook
+
 
 class Reporter(object):
     """
