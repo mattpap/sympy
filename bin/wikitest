@@ -63,7 +63,9 @@ parser.add_option("-n", "--normal", action="store_true", dest="normal",
 parser.add_option("-a", "--against", type="string", dest="against",
         help="What do the tests must be relative [master | release | master,release] [default: %default]",
         default="master")
-        
+parser.add_option("-f", "--firstonly", action="store_true", dest="firstonly",
+        help="Report only first failure for every file [default: %default]",
+        default=False)
 parser.add_option("-w", "--wiki-dir", type="string", dest="wiki_dir",
         help="The path to the wiki pages directory", default=None)
 parser.add_option("-m", "--master-dir", type="string", dest="master_dir",

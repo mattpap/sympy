@@ -1013,9 +1013,11 @@ def wikitest(*paths, **kwargs):
     blacklist.extend([])
     blacklist = convert_to_native_paths(blacklist)
     wiki_dir = kwargs["wiki_dir"]
+    firstonly = kwargs["firstonly"]
 
     r = PyTestReporter(verbose)
     t = SymPyWikiTests(r, normal)
+    parser = WikiTestParser()
     failed_total = False
 
     for against in againstlist:
@@ -1047,10 +1049,14 @@ def wikitest(*paths, **kwargs):
                 continue
             basename = os.path.basename(txt_file)
             old_displayhook = sys.displayhook
+            optionflags = pdoctest.ELLIPSIS | pdoctest.NORMALIZE_WHITESPACE
+            if firstonly:
+                optionflags = optionflags | pdoctest.REPORT_ONLY_FIRST_FAILURE
             try:
                 out = t.testfile(txt_file, module_relative=False,
-                        optionflags=pdoctest.ELLIPSIS | \
-                        pdoctest.NORMALIZE_WHITESPACE)
+                        optionflags=optionflags,
+                        parser=parser)
+
             finally:
                 # make sure we return to the original displayhook in case some
                 # doctest has changed that
@@ -1191,9 +1197,7 @@ class SymPyWikiTests(object):
 
             try:
                 import IPython
-
                 ip = IPython.ipapi.get()
-
                 if ip is not None:
                     def result_display(self, arg):
                         """IPython's pretty-printer display hook.
@@ -1205,21 +1209,16 @@ class SymPyWikiTests(object):
                         """
                         if self.rc.pprint:
                             out = stringify_func(arg)
-
                             if '\n' in out:
                                 print
-
                             print out
                         else:
                             print repr(arg)
-
                     ip.set_hook('result_display', result_display)
                     return
             except ImportError:
                 pass
-
             import __builtin__, sys
-
             def displayhook(arg):
                 """Python's pretty-printer display hook.
 
@@ -1232,9 +1231,31 @@ class SymPyWikiTests(object):
                     __builtin__._ = None
                     print stringify_func(arg)
                     __builtin__._ = arg
-
             sys.displayhook = displayhook
 
+class WikiTestParser(pdoctest.DocTestParser):
+    """
+    Parser to find tests in the wiki page.
+
+    It extend standard DocTestParser to catch Markdown code-block syntax with
+    pigment:
+        ```py
+         >>> x = Symbol('x')
+        ```
+    """
+    _EXAMPLE_RE = re.compile(r'''
+        # Source consists of a PS1 line followed by zero or more PS2 lines.
+        (?P<source>
+            (?:^(?P<indent> [ ]*) >>>    .*)    # PS1 line
+            (?:\n           [ ]*  \.\.\. .*)*)  # PS2 lines
+        \n?
+        # Want consists of any non-blank lines that do not start with PS1.
+        (?P<want> (?:(?![ ]*$)    # Not a blank line
+                     (?![ ]*>>>)  # Not a line starting with PS1
+                     (?![ ]*```)  # Not a ```
+                     .*$\n?       # But any other line
+                  )*)
+        ''', re.MULTILINE | re.VERBOSE)
 
 class Reporter(object):
     """
