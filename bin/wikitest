@@ -97,18 +97,18 @@ def calcpath(path, default):
 
 dictargs["wiki_dir"] = calcpath(options.wiki_dir, "../../sympy.wiki")
 if not isdir(dictargs["wiki_dir"]):
-    parser.error("Directory of wiki pages '%s' is not found " % options.wiki_dir)
+    parser.error("Directory of wiki pages '%s' is not found " % dictargs["wiki_dir"])
 for against in againstlist:
     if not against in ["master", "release"]:
         parser.error("The 'against' option must be in the set [master,release]")
     elif against == "master":
-        dictargs["master_dir"] = calcpath(options.master_dir, "../../sympy")
+        dictargs["master_dir"] = calcpath(options.master_dir, "../")
         if not isdir(dictargs["master_dir"]):
-            parser.error("Master repository '%s' is not found " % options.master_dir)
+            parser.error("Master repository '%s' is not found " % dictargs["master_dir"])
     elif against == "release":
         dictargs["release_dir"] = calcpath(options.release_dir, "../../sympy-0.6.7")
         if not isdir(dictargs["release_dir"]):
-            parser.error("SymPy's release directory '%s' is not found " % options.releas_dir)
+            parser.error("SymPy's release directory '%s' is not found " % dictargs["release_dir"])
 
 # to obtain sympy.utilities insert into sys.path current sympy module path
 from get_sympy import path_hack
