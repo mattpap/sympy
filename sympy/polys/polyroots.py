@@ -38,6 +38,22 @@ def roots_quadratic(f):
         else:
             return simplify(expr)
 
+    def _sqrt(expr):
+        coeff, args = expr.as_coeff_mul()
+        sqrt_part, else_part = [], []
+
+        if coeff < 0:
+            sqrt_part.append(S(-1))
+            coeff = -coeff
+
+        for arg in args:
+            if arg.is_Pow and arg.exp.is_Rational and arg.exp.p % 2 == 0:
+                else_part.append(arg.__class__(arg.base, arg.exp/2))
+            else:
+                sqrt_part.append(arg)
+
+        return sqrt(coeff)*sqrt(Mul(*sqrt_part))*Mul(*else_part)
+
     if c is S.Zero:
         r0, r1 = S.Zero, -b/a
 
@@ -46,10 +62,10 @@ def roots_quadratic(f):
     elif b is S.Zero:
         r = -c/a
 
-        if not dom.is_Numerical:
-            R = sqrt(_simplify(r))
-        else:
+        if dom.is_Numerical:
             R = sqrt(r)
+        else:
+            R = _sqrt(_simplify(r))
 
         r0 =  R
         r1 = -R
@@ -62,7 +78,7 @@ def roots_quadratic(f):
             r0 = (-b + D) / (2*a)
             r1 = (-b - D) / (2*a)
         else:
-            D = sqrt(_simplify(d))
+            D = _sqrt(_simplify(d))
             A = 2*a
 
             E = _simplify(-b/A)
