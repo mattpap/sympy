@@ -592,7 +592,7 @@ def test_nth_linear_constant_coeff_homogeneous():
     sol10 = Eq(f(x), C1*sin(x*sqrt(a)) + C2*cos(x*sqrt(a)) + C3*exp(x*sqrt(a)) + \
         C4*exp(-x*sqrt(a)))
     sol11 = Eq(f(x), C1*exp(k*x + x*sqrt(2 + k**2)) + C2*exp(k*x - x*sqrt(2 + k**2)))
-    sol12 = Eq(f(x), C1*exp(-4*x*abs(k) - 2*k*x) + C2*exp(-2*k*x + 4*x*abs(k)))
+    sol12 = Eq(f(x), C1*exp(-6*k*x) + C2*exp(2*k*x))
     sol13 = Eq(f(x), C1 + C2*x + C3*x**2 + C4*x**3)
     sol14 = Eq(f(x), (C1 + C2*x)*exp(-2*x))
     sol15 = Eq(f(x), (C1 + C2*x)*exp(-x) + C3*exp(x/3))
@@ -1157,3 +1157,4 @@ def test_constant_renumber_order_issue2209():
     e = C1*(C2 + x)*(C3 + y)
     for a, b, c in variations([C1, C2, C3], 3):
         assert constant_renumber(a*(b + x)*(c + y), "C", 1, 3) == e
+
