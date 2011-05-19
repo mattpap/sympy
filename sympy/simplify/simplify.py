@@ -1,8 +1,8 @@
 from sympy import SYMPY_DEBUG
 
-from sympy.core import Basic, S, C, Add, Mul, Pow, Rational, Integer, \
-        Derivative, Wild, Symbol, sympify, expand, expand_mul, expand_func, \
-        Function, Equality, Dummy, Atom, count_ops
+from sympy.core import (Basic, S, C, Add, Mul, Pow, Rational, Integer,
+    Derivative, Wild, Symbol, sympify, expand, expand_mul, expand_func,
+    Function, Equality, Dummy, Atom, count_ops)
 
 from sympy.core.numbers import igcd
 
@@ -1424,6 +1424,107 @@ def hypersimilar(f, g, k):
     return h.is_rational_function(k)
 
 def combsimp(expr):
+    """
+    Simplify combinatorial expressions.
+
+    **Examples**
+
+    >>> from sympy.simplify import combsimp
+    >>> from sympy import factorial, binomial
+    >>> from sympy.abc import n, k
+
+    >>> a*b
+
+    """
+    factorial = C.factorial
+    binomial = C.binomial
+    gamma = C.gamma
+    floor = C.floor
+    ceiling = C.ceiling
+
+    class rf(Function):
+        """Simple and fast raising factorial. """
+
+        @classmethod
+        def eval(cls, a, n):
+            if n.is_Integer:
+                n = int(n)
+
+                if not n:
+                    return S.Zero
+                else:
+                    result = S.One
+
+                    if n > 0:
+                        for i in xrange(0, n):
+                            result *= a + i
+
+                        return result
+                    else:
+                        for i in xrange(1, -n+1):
+                            result *= a - i
+
+                        return 1/result
+
+    expr = expr.replace(binomial, lambda n, k: rf(n-k+1, k)/rf(1, k))
+    expr = expr.replace(factorial, lambda n: rf(1, n))
+    expr = expr.replace(gamma, lambda n: rf(1, n-1))
+
+    expr = expr.replace(rf, lambda a, b: rf(a.expand(), b.expand()))
+
+    def as_coeff_Add(expr):
+        if expr.is_Add:
+            coeff, args = expr.args[0], expr.args[1:]
+
+            if coeff.is_Number:
+                if len(args) == 1:
+                    return coeff, args[0]
+                else:
+                    return coeff, expr._new_rawargs(*args)
+
+        return S.Zero, expr
+
+    def rules(a, b):
+        c, b = as_coeff_Add(b)
+
+        if c.is_Integer:
+            if c > 0:
+                return rf(a, b)*rf(a+b, c)
+            elif c < 0:
+                return rf(a, b)/rf(a+b+c, -c)
+        elif c.is_Rational:
+            if c > 1:
+                _floor = floor(c)
+                return rf(a, b+c-_floor)*rf(a+b+c-_floor, _floor)
+            elif c < 0:
+                _ceiling = ceiling(c)
+                return rf(a, b+c-_ceiling+1)/rf(a+b+c, 1-_ceiling)
+
+        c, a = as_coeff_Add(a)
+
+        if c.is_Integer:
+            if c > 0:
+                return rf(a, b)*rf(a+b, c)/rf(a, c)
+            elif c < 0:
+                return rf(a, b)*rf(a+c, -c)/rf(a+b+c, -c)
+        elif c.is_Rational:
+            if c > 1:
+                _floor = floor(c)
+                return rf(a+c-_floor, b)*rf(a+c-_floor+b, _floor)/rf(a+c-_floor, _floor)
+            elif c < 0:
+                _ceiling = ceiling(c)
+                return rf(a+c, 1-_ceiling)*rf(a+c-_ceiling+1, b)/rf(a+c+b, 1-_ceiling)
+
+    while True:
+        _expr = expr.replace(rf, rules)
+
+        if expr != _expr:
+            expr = _expr
+        else:
+            break
+
+    expr = expr.replace(rf, lambda a, b: binomial(a+b-1, b)*factorial(b))
+
     return expr
 
 def simplify(expr, ratio=1.7):
