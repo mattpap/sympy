@@ -250,7 +250,7 @@ def summation(f, *symbols, **kwargs):
     """
     return Sum(f, *symbols, **kwargs).doit(deep=False)
 
-def telescopic_direct(L, R, n, (i, a, b)):
+def telescopic_direct(L, R, n, sum_tuple):
     """Returns the direct summation of the terms of a telescopic sum
 
     L is the term with lower index
@@ -265,16 +265,18 @@ def telescopic_direct(L, R, n, (i, a, b)):
     -1/(b + 2) - 1/(b + 1) + 1/(a + 1) + 1/a
 
     """
+    (i, a, b) = sum_tuple
     s = 0
     for m in xrange(n):
         s += L.subs(i,a+m) + R.subs(i,b-m)
     return s
 
-def telescopic(L, R, (i, a, b)):
+def telescopic(L, R, sum_tuple):
     '''Tries to perform the summation using the telescopic property
 
     return None if not possible
     '''
+    (i, a, b) = sum_tuple
     if L.is_Add or R.is_Add:
         return None
 
@@ -311,7 +313,8 @@ def telescopic(L, R, (i, a, b)):
     elif s > 0:
         return telescopic_direct(L, R, s, (i, a, b))
 
-def eval_sum(f, (i, a, b)):
+def eval_sum(f, sum_tuple):
+    (i, a, b) = sum_tuple
     if f is S.Zero:
         return S.Zero
 
@@ -332,7 +335,8 @@ def eval_sum(f, (i, a, b)):
     if definite:
         return eval_sum_direct(f, (i, a, b))
 
-def eval_sum_symbolic(f, (i, a, b)):
+def eval_sum_symbolic(f, sum_tuple):
+    (i, a, b) = sum_tuple
     if not f.has(i):
         return f*(b-a+1)
 
@@ -399,7 +403,8 @@ def eval_sum_symbolic(f, (i, a, b)):
 
     return gosper_sum(f, (i, a, b))
 
-def eval_sum_direct(expr, (i, a, b)):
+def eval_sum_direct(expr, sum_tuple):
+    (i, a, b) = sum_tuple
     s = S.Zero
     if i in expr.free_symbols:
         for j in xrange(a, b+1):

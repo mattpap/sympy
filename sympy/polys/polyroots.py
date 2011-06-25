@@ -429,7 +429,8 @@ def preprocess_roots(poly):
         if basis is not None:
             n = poly.degree()
 
-            def func((k,), coeff):
+            def func(xxx_todo_changeme, coeff):
+                (k,) = xxx_todo_changeme
                 return coeff//basis**(n-k)
 
             poly = poly.termwise(func)
