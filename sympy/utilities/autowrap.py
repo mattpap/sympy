@@ -163,7 +163,7 @@ def %(name)s():
         return
 
     def _generate_code(self, routine, helpers):
-        f = file('%s.py' % self.module_name, 'w')
+        f = open('%s.py' % self.module_name, 'w')
         printed = ", ".join([str(res.expr) for res in routine.result_variables])
         # convert OutputArguments to return value like f2py
         inargs = filter(lambda x: not isinstance(x, OutputArgument), routine.arguments)
@@ -213,14 +213,14 @@ setup(
         codefilename = "%s.%s" % (self.filename, self.generator.code_extension)
 
         # pyx
-        f = file(pyxfilename, 'w')
+        f = open(pyxfilename, 'w')
         self.dump_pyx([routine], f, self.filename,
                 self.include_header, self.include_empty)
         f.close()
 
         # setup.py
         ext_args = [repr(self.module_name), repr([pyxfilename, codefilename])]
-        f = file('setup.py', 'w')
+        f = open('setup.py', 'w')
         print >> f, CythonCodeWrapper.setup_template % {'args': ", ".join(ext_args)}
         f.close()
 
