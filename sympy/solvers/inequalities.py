@@ -141,7 +141,7 @@ def reduce_poly_inequalities(exprs, gen, assume=True, relational=True):
         intervals = []
 
     if not exact:
-        intervals = map(interval_evalf, intervals)
+        intervals = list(map(interval_evalf, intervals))
 
     if not relational:
         return intervals
@@ -209,7 +209,7 @@ def reduce_abs_inequality(expr, rel, gen, assume=True):
     inequalities = []
 
     for expr, conds in exprs:
-        if rel not in mapping.keys():
+        if rel not in list(mapping.keys()):
             expr = Relational( expr, 0, rel)
         else:
             expr = Relational(-expr, 0, mapping[rel])
@@ -280,10 +280,10 @@ def reduce_inequalities(inequalities, assume=True):
     poly_reduced = []
     abs_reduced = []
 
-    for gen, exprs in poly_part.iteritems():
+    for gen, exprs in poly_part.items():
         poly_reduced.append(reduce_poly_inequalities([exprs], gen, assume))
 
-    for gen, exprs in abs_part.iteritems():
+    for gen, exprs in abs_part.items():
         abs_reduced.append(reduce_abs_inequalities(exprs, gen, assume))
 
     return And(*(poly_reduced + abs_reduced))

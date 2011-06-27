@@ -10,7 +10,7 @@ from sympy import Derivative as D
 def main():
     r, phi, theta = symbols("r,phi,theta")
     Xi = Function('Xi')
-    R, Phi, Theta, u = map(Function, ['R', 'Phi', 'Theta', 'u'])
+    R, Phi, Theta, u = list(map(Function, ['R', 'Phi', 'Theta', 'u']))
     C1, C2 = symbols('C1,C2')
 
     pprint ("Separation of variables in Laplace equation in spherical coordinates")

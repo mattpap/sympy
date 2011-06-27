@@ -36,8 +36,8 @@ from sympy.utilities.runtests import test, doctest
 
 # Make sure I have the right Python version.
 if sys.version_info[:2] < (2,4):
-    print "Sympy requires Python 2.4 or newer. Python %d.%d detected" % \
-          sys.version_info[:2]
+    print("Sympy requires Python 2.4 or newer. Python %d.%d detected" % \
+          sys.version_info[:2])
     sys.exit(-1)
 
 # Check that this list is uptodate against the result of the command:
@@ -103,7 +103,7 @@ class audit(Command):
         try:
             import pyflakes.scripts.pyflakes as flakes
         except:
-            print """In order to run the audit, you need to have PyFlakes installed."""
+            print("""In order to run the audit, you need to have PyFlakes installed.""")
             sys.exit(-1)
         # We don't want to audit external dependencies
         ext = ('mpmath',)
@@ -115,7 +115,7 @@ class audit(Command):
                 if filename.endswith('.py') and filename != '__init__.py':
                     warns += flakes.checkPath(os.path.join(dir, filename))
         if warns > 0:
-            print ("Audit finished with total %d warnings" % warns)
+            print(("Audit finished with total %d warnings" % warns))
 
 class clean(Command):
     """Cleans *.pyc and debian trashs, so you should get the same copy as

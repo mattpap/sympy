@@ -1,10 +1,10 @@
-from basic import Basic
-from core import C
-from sympify import sympify
-from singleton import S
-from expr import Expr, AtomicExpr
-from cache import cacheit
-from function import FunctionClass
+from .basic import Basic
+from .core import C
+from .sympify import sympify
+from .singleton import S
+from .expr import Expr, AtomicExpr
+from .cache import cacheit
+from .function import FunctionClass
 from sympy.logic.boolalg import Boolean
 
 import re
@@ -78,7 +78,7 @@ class Symbol(AtomicExpr, Boolean):
         return Dummy(self.name, self.is_commutative, **assumptions)
 
     def __call__(self, *args):
-        from function import Function
+        from .function import Function
         return Function(self.name, nargs=len(args))(*args, **self.assumptions0)
 
     def as_real_imag(self, deep=True):
@@ -278,7 +278,7 @@ def symbols(names, **args):
     """
     result = []
 
-    if isinstance(names, basestring):
+    if isinstance(names, str):
         names = _re_var_split.split(names)
 
         cls = args.pop('cls', Symbol)
@@ -303,7 +303,7 @@ def symbols(names, **args):
                 else:
                     start = int(start)
 
-                for i in xrange(start, int(end)):
+                for i in range(start, int(end)):
                     symbol = cls("%s%i" % (name, i), **args)
                     result.append(symbol)
 
@@ -315,7 +315,7 @@ def symbols(names, **args):
             if match is not None:
                 start, end = match.groups()
 
-                for name in xrange(ord(start), ord(end)+1):
+                for name in range(ord(start), ord(end)+1):
                     symbol = cls(chr(name), **args)
                     result.append(symbol)
 

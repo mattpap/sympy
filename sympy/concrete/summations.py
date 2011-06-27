@@ -195,7 +195,7 @@ class Sum(Expr):
         fa, fb = fpoint(f)
         iterm = (fa + fb)/2
         g = f.diff(i)
-        for k in xrange(1, n+2):
+        for k in range(1, n+2):
             ga, gb = fpoint(g)
             term = C.bernoulli(2*k)/C.factorial(2*k)*(gb-ga)
             if (eps and term and abs(term.evalf(3)) < eps) or (k > n):
@@ -267,7 +267,7 @@ def telescopic_direct(L, R, n, sum_tuple):
     """
     (i, a, b) = sum_tuple
     s = 0
-    for m in xrange(n):
+    for m in range(n):
         s += L.subs(i,a+m) + R.subs(i,b-m)
     return s
 
@@ -407,9 +407,9 @@ def eval_sum_direct(expr, sum_tuple):
     (i, a, b) = sum_tuple
     s = S.Zero
     if i in expr.free_symbols:
-        for j in xrange(a, b+1):
+        for j in range(a, b+1):
             s += expr.subs(i, j)
     else:
-        for j in xrange(a, b+1):
+        for j in range(a, b+1):
             s += expr
     return s

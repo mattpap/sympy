@@ -14,13 +14,13 @@ else:
         warn("gmpy library is too old, can't take advantage of it")
         HAS_GMPY = False
 
-from __builtin__ import (
+from builtins import (
     int     as PythonIntegerType,
     float   as PythonRealType,
     complex as PythonComplexType,
 )
 
-from pythonrationaltype import PythonRationalType
+from .pythonrationaltype import PythonRationalType
 
 def python_factorial(n):
     from sympy.functions.combinatorial.factorials import factorial

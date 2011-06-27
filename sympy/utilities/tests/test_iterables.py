@@ -102,7 +102,7 @@ def test_subsets():
     assert list(subsets([1, 2, 3], 1)) == [[1], [2], [3]]
     assert list(subsets([1, 2, 3], 2)) == [[1, 2], [1,3], [2, 3]]
     assert list(subsets([1, 2, 3], 3)) == [[1, 2, 3]]
-    l = range(4)
+    l = list(range(4))
     assert list(subsets(l, 0, repetition=True)) == [[]]
     assert list(subsets(l, 1, repetition=True)) == [[0], [1], [2], [3]]
     assert list(subsets(l, 2, repetition=True)) == [[0, 0], [0, 1], [0, 2],
@@ -137,7 +137,7 @@ def test_subsets():
 
 def test_variations():
     # permutations
-    l = range(4)
+    l = list(range(4))
     assert list(variations(l, 0, repetition=False)) == [[]]
     assert list(variations(l, 1, repetition=False)) == [[0], [1], [2], [3]]
     assert list(variations(l, 2, repetition=False)) == [[0, 1], [0, 2], [0, 3], [1, 0], [1, 2], [1, 3], [2, 0], [2, 1], [2, 3], [3, 0], [3, 1], [3, 2]]
@@ -165,10 +165,10 @@ def test_cartes():
 
 def test_numbered_symbols():
     s = numbered_symbols(cls=Dummy)
-    assert isinstance(s.next(), Dummy)
+    assert isinstance(next(s), Dummy)
 
 def test_sift():
-    assert sift(range(5), lambda _: _%2) == {1: [1, 3], 0: [0, 2, 4]}
+    assert sift(list(range(5)), lambda _: _%2) == {1: [1, 3], 0: [0, 2, 4]}
     assert sift(x + y, lambda _: _.has(x)) == {False: [y], True: [x]}
     assert sift(x*y, lambda _: _.has(x)) == {False: [y], True: [x]}
     assert sift(S.One, lambda _: _.has(x)) == {False: [1]}

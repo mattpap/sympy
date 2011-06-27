@@ -153,7 +153,7 @@ class Poly(Expr):
         if domain is None:
             domain, rep = construct_domain(rep, opt=opt)
         else:
-            for monom, coeff in rep.iteritems():
+            for monom, coeff in rep.items():
                 rep[monom] = domain.convert(coeff)
 
         return cls.new(DMP.from_dict(rep, level, domain), *gens)
@@ -174,7 +174,7 @@ class Poly(Expr):
         if domain is None:
             domain, rep = construct_domain(rep, opt=opt)
         else:
-            rep = map(domain.convert, rep)
+            rep = list(map(domain.convert, rep))
 
         return cls.new(DMP.from_list(rep, level, domain), *gens)
 
@@ -375,7 +375,7 @@ class Poly(Expr):
                 if f.rep.dom != dom:
                     f_coeffs = [ dom.convert(c, f.rep.dom) for c in f_coeffs ]
 
-                F = DMP(dict(zip(f_monoms, f_coeffs)), dom, lev)
+                F = DMP(dict(list(zip(f_monoms, f_coeffs))), dom, lev)
             else:
                 F = f.rep.convert(dom)
 
@@ -385,7 +385,7 @@ class Poly(Expr):
                 if g.rep.dom != dom:
                     g_coeffs = [ dom.convert(c, g.rep.dom) for c in g_coeffs ]
 
-                G = DMP(dict(zip(g_monoms, g_coeffs)), dom, lev)
+                G = DMP(dict(list(zip(g_monoms, g_coeffs))), dom, lev)
             else:
                 G = g.rep.convert(dom)
         else:
@@ -564,7 +564,7 @@ class Poly(Expr):
         elif set(f.gens) != set(gens):
             raise PolynomialError("generators list can differ only up to order of elements")
 
-        rep = dict(zip(*_dict_reorder(f.rep.to_dict(), f.gens, gens)))
+        rep = dict(list(zip(*_dict_reorder(f.rep.to_dict(), f.gens, gens))))
 
         return f.per(DMP(rep, f.rep.dom, len(gens)-1), gens=gens)
 
@@ -585,7 +585,7 @@ class Poly(Expr):
         j = f._gen_to_level(gen)
         terms = {}
 
-        for monom, coeff in rep.iteritems():
+        for monom, coeff in rep.items():
             monom = monom[j:]
 
             if monom not in terms:
@@ -917,7 +917,7 @@ class Poly(Expr):
             mapping = gens[0]
             gens = list(f.gens)
 
-            for gen, value in mapping.iteritems():
+            for gen, value in mapping.items():
                 try:
                     index = gens.index(gen)
                 except ValueError:
@@ -1444,7 +1444,7 @@ class Poly(Expr):
         if hasattr(f.rep, 'pexquo'):
             try:
                 result = F.pexquo(G)
-            except ExactQuotientFailed, exc:
+            except ExactQuotientFailed as exc:
                 raise exc.new(f.as_expr(), g.as_expr())
         else: # pragma: no cover
             raise OperationNotSupported(f, 'pexquo')
@@ -1589,7 +1589,7 @@ class Poly(Expr):
         if hasattr(f.rep, 'exquo'):
             try:
                 q = F.exquo(G)
-            except ExactQuotientFailed, exc:
+            except ExactQuotientFailed as exc:
                 raise exc.new(f.as_expr(), g.as_expr())
         else: # pragma: no cover
             raise OperationNotSupported(f, 'exquo')
@@ -1755,7 +1755,7 @@ class Poly(Expr):
 
         """
         if hasattr(f.rep, 'nth'):
-            result = f.rep.nth(*map(int, N))
+            result = f.rep.nth(*list(map(int, N)))
         else: # pragma: no cover
             raise OperationNotSupported(f, 'nth')
 
@@ -2030,7 +2030,7 @@ class Poly(Expr):
         if a is None:
             if isinstance(x, (list, dict)):
                 try:
-                    mapping = x.items()
+                    mapping = list(x.items())
                 except AttributeError:
                     mapping = x
 
@@ -2181,7 +2181,7 @@ class Poly(Expr):
         else: # pragma: no cover
             raise OperationNotSupported(f, 'subresultants')
 
-        return map(per, result)
+        return list(map(per, result))
 
     def resultant(f, g):
         """
@@ -2425,7 +2425,7 @@ class Poly(Expr):
         else: # pragma: no cover
             raise OperationNotSupported(f, 'decompose')
 
-        return map(f.per, result)
+        return list(map(f.per, result))
 
     def shift(f, a):
         """
@@ -2471,7 +2471,7 @@ class Poly(Expr):
         else: # pragma: no cover
             raise OperationNotSupported(f, 'sturm')
 
-        return map(f.per, result)
+        return list(map(f.per, result))
 
     def gff_list(f):
         """
@@ -2694,7 +2694,7 @@ class Poly(Expr):
                 return (QQ.to_sympy(s), QQ.to_sympy(t))
 
             if not all:
-                return map(_real, result)
+                return list(map(_real, result))
 
             def _complex(rectangle):
                 (u, v), (s, t) = rectangle
@@ -2703,14 +2703,14 @@ class Poly(Expr):
 
             real_part, complex_part = result
 
-            return map(_real, real_part), map(_complex, complex_part)
+            return list(map(_real, real_part)), list(map(_complex, complex_part))
         else:
             def _real(interval):
                 (s, t), k = interval
                 return ((QQ.to_sympy(s), QQ.to_sympy(t)), k)
 
             if not all:
-                return map(_real, result)
+                return list(map(_real, result))
 
             def _complex(rectangle):
                 ((u, v), (s, t)), k = rectangle
@@ -2719,7 +2719,7 @@ class Poly(Expr):
 
             real_part, complex_part = result
 
-            return map(_real, real_part), map(_complex, complex_part)
+            return list(map(_real, real_part)), list(map(_complex, complex_part))
 
     def refine_root(f, s, t, eps=None, steps=None, fast=False, check_sqf=False):
         """
@@ -2785,7 +2785,7 @@ class Poly(Expr):
                 if not im:
                     inf = QQ.convert(inf)
                 else:
-                    inf, inf_real = map(QQ.convert, (re, im)), False
+                    inf, inf_real = list(map(QQ.convert, (re, im))), False
 
         if sup is not None:
             sup = sympify(sup)
@@ -2798,7 +2798,7 @@ class Poly(Expr):
                 if not im:
                     sup = QQ.convert(sup)
                 else:
-                    sup, sup_real = map(QQ.convert, (re, im)), False
+                    sup, sup_real = list(map(QQ.convert, (re, im))), False
 
         if inf_real and sup_real:
             if hasattr(f.rep, 'count_real_roots'):
@@ -2922,7 +2922,7 @@ class Poly(Expr):
         else:
             roots, error = result, None
 
-        roots = map(sympify, sorted(roots, key=lambda r: (r.real, r.imag)))
+        roots = list(map(sympify, sorted(roots, key=lambda r: (r.real, r.imag))))
 
         if error is not None:
             return roots, sympify(error)
@@ -3447,7 +3447,7 @@ class Poly(Expr):
     def __ne__(f, g):
         return not f.__eq__(g)
 
-    def __nonzero__(f):
+    def __bool__(f):
         return not f.is_zero
 
 class PurePoly(Poly):
@@ -3566,13 +3566,13 @@ def _poly_from_expr(expr, opt):
     except GeneratorsNeeded:
         raise PolificationFailed(opt, orig, expr)
 
-    monoms, coeffs = zip(*rep.items())
+    monoms, coeffs = list(zip(*list(rep.items())))
     domain = opt.domain
 
     if domain is None:
         domain, coeffs = construct_domain(coeffs, opt=opt)
     else:
-        coeffs = map(domain.from_sympy, coeffs)
+        coeffs = list(map(domain.from_sympy, coeffs))
 
     level = len(opt.gens)-1
 
@@ -3649,7 +3649,7 @@ def _parallel_poly_from_expr(exprs, opt):
     all_coeffs = []
 
     for rep in reps:
-        monoms, coeffs = zip(*rep.items())
+        monoms, coeffs = list(zip(*list(rep.items())))
 
         coeffs_list.extend(coeffs)
         all_monoms.append(monoms)
@@ -3661,7 +3661,7 @@ def _parallel_poly_from_expr(exprs, opt):
     if domain is None:
         domain, coeffs_list = construct_domain(coeffs_list, opt=opt)
     else:
-        coeffs_list = map(domain.from_sympy, coeffs_list)
+        coeffs_list = list(map(domain.from_sympy, coeffs_list))
 
     for k in lengths:
         all_coeffs.append(coeffs_list[:k])
@@ -3719,7 +3719,7 @@ def degree(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('degree', 1, exc)
 
     return Integer(F.degree(opt.gen))
@@ -3741,7 +3741,7 @@ def degree_list(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('degree_list', 1, exc)
 
     degrees = F.degree_list()
@@ -3765,7 +3765,7 @@ def LC(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('LC', 1, exc)
 
     return F.LC(order=opt.order)
@@ -3787,7 +3787,7 @@ def LM(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('LM', 1, exc)
 
     monom = Monomial(*F.LM(order=opt.order))
@@ -3811,7 +3811,7 @@ def LT(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('LT', 1, exc)
 
     monom, coeff = F.LT(order=opt.order)
@@ -3835,7 +3835,7 @@ def pdiv(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('pdiv', 2, exc)
 
     q, r = F.pdiv(G)
@@ -3862,7 +3862,7 @@ def prem(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('prem', 2, exc)
 
     r = F.prem(G)
@@ -3891,7 +3891,7 @@ def pquo(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('pquo', 2, exc)
 
     q = F.pquo(G)
@@ -3923,7 +3923,7 @@ def pexquo(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('pexquo', 2, exc)
 
     q = F.pexquo(G)
@@ -3952,7 +3952,7 @@ def div(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('div', 2, exc)
 
     q, r = F.div(G, auto=opt.auto)
@@ -3981,7 +3981,7 @@ def rem(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('rem', 2, exc)
 
     r = F.rem(G, auto=opt.auto)
@@ -4010,7 +4010,7 @@ def quo(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('quo', 2, exc)
 
     q = F.quo(G, auto=opt.auto)
@@ -4042,7 +4042,7 @@ def exquo(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('exquo', 2, exc)
 
     q = F.exquo(G, auto=opt.auto)
@@ -4071,7 +4071,7 @@ def half_gcdex(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         f, g = exc.exprs
 
         if hasattr(f, 'half_gcdex'):
@@ -4108,7 +4108,7 @@ def gcdex(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         f, g = exc.exprs
 
         if hasattr(f, 'gcdex'):
@@ -4148,7 +4148,7 @@ def invert(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         f, g = exc.exprs
 
         if hasattr(f, 'invert'):
@@ -4183,7 +4183,7 @@ def subresultants(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('subresultants', 2, exc)
 
     result = F.subresultants(G)
@@ -4210,7 +4210,7 @@ def resultant(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('resultant', 2, exc)
 
     result = F.resultant(G)
@@ -4237,7 +4237,7 @@ def discriminant(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('discriminant', 1, exc)
 
     result = F.discriminant()
@@ -4268,7 +4268,7 @@ def cofactors(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         f, g = exc.exprs
 
         if hasattr(f, 'cofactors'):
@@ -4320,7 +4320,7 @@ def gcd_list(seq, *gens, **args):
 
     try:
         polys, opt = parallel_poly_from_expr(seq, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('gcd_list', len(seq), exc)
 
     if not polys:
@@ -4365,7 +4365,7 @@ def gcd(f, g=None, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         f, g = exc.exprs
 
         if hasattr(f, 'gcd'):
@@ -4414,7 +4414,7 @@ def lcm_list(seq, *gens, **args):
 
     try:
         polys, opt = parallel_poly_from_expr(seq, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('lcm_list', len(seq), exc)
 
     if not polys:
@@ -4456,7 +4456,7 @@ def lcm(f, g=None, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         f, g = exc.exprs
 
         if hasattr(f, 'lcm'):
@@ -4491,7 +4491,7 @@ def terms_gcd(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         return exc.expr
 
     J, f = F.terms_gcd()
@@ -4528,7 +4528,7 @@ def trunc(f, p, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('trunc', 1, exc)
 
     result = F.trunc(sympify(p))
@@ -4555,7 +4555,7 @@ def monic(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('monic', 1, exc)
 
     result = F.monic(auto=opt.auto)
@@ -4582,7 +4582,7 @@ def content(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('content', 1, exc)
 
     return F.content()
@@ -4604,7 +4604,7 @@ def primitive(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('primitive', 1, exc)
 
     cont, result = F.primitive()
@@ -4631,7 +4631,7 @@ def compose(f, g, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((f, g), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('compose', 2, exc)
 
     result = F.compose(G)
@@ -4658,7 +4658,7 @@ def decompose(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('decompose', 1, exc)
 
     result = F.decompose()
@@ -4685,7 +4685,7 @@ def sturm(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('sturm', 1, exc)
 
     result = F.sturm(auto=opt.auto)
@@ -4717,7 +4717,7 @@ def gff_list(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('gff_list', 1, exc)
 
     factors = F.gff_list()
@@ -4752,7 +4752,7 @@ def sqf_norm(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('sqf_norm', 1, exc)
 
     s, g, r = F.sqf_norm()
@@ -4779,7 +4779,7 @@ def sqf_part(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('sqf_part', 1, exc)
 
     result = F.sqf_part()
@@ -4823,7 +4823,7 @@ def _symbolic_factor_list(expr, opt, method):
         else:
             try:
                 poly, _ = _poly_from_expr(base, opt)
-            except PolificationFailed, exc:
+            except PolificationFailed as exc:
                 coeff *= exc.expr**exp
             else:
                 func = getattr(poly, method + '_list')
@@ -5133,7 +5133,7 @@ def ground_roots(f, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('ground_roots', 1, exc)
 
     return F.ground_roots()
@@ -5164,7 +5164,7 @@ def nth_power_roots_poly(f, n, *gens, **args):
 
     try:
         F, opt = poly_from_expr(f, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('nth_power_roots_poly', 1, exc)
 
     result = F.nth_power_roots_poly(n)
@@ -5201,7 +5201,7 @@ def cancel(f, *gens, **args):
 
     try:
         (F, G), opt = parallel_poly_from_expr((p, q), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         if type(f) is not tuple:
             return f
         else:
@@ -5239,7 +5239,7 @@ def reduced(f, G, *gens, **args):
 
     try:
         polys, opt = parallel_poly_from_expr([f] + list(G), *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('reduced', 0, exc)
 
     for i, poly in enumerate(polys):
@@ -5287,7 +5287,7 @@ def groebner(F, *gens, **args):
 
     try:
         polys, opt = parallel_poly_from_expr(F, *gens, **args)
-    except PolificationFailed, exc:
+    except PolificationFailed as exc:
         raise ComputationFailed('groebner', len(F), exc)
 
     domain = opt.domain

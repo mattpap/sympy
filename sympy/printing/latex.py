@@ -3,8 +3,8 @@ A Printer which converts an expression into its LaTeX equivalent.
 """
 
 from sympy.core import S, C, Basic, Add, Mul, Wild, var
-from printer import Printer
-from conventions import split_super_sub
+from .printer import Printer
+from .conventions import split_super_sub
 from sympy.simplify import fraction
 from sympy import Interval
 
@@ -301,7 +301,7 @@ class LatexPrinter(Printer):
         else:
             def _format_ineq(l):
                 return r"%s \leq %s \leq %s" % \
-                    tuple([self._print(s) for s in l[1], l[0], l[2]])
+                    tuple([self._print(s) for s in (l[1], l[0], l[2])])
 
             tex = r"\sum_{\substack{%s}} " % \
                 str.join('\\\\', [ _format_ineq(l) for l in expr.limits ])
@@ -650,7 +650,7 @@ class LatexPrinter(Printer):
     def _print_dict(self, expr):
         items = []
 
-        keys = expr.keys()
+        keys = list(expr.keys())
         keys.sort(key=cmp_to_key(Basic.compare_pretty))
         for key in keys:
             val = expr[key]
@@ -756,5 +756,5 @@ def latex(expr, **settings):
 
 def print_latex(expr, **settings):
     """Prints LaTeX representation of the given expression."""
-    print latex(expr, **settings)
+    print(latex(expr, **settings))
 
