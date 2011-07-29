@@ -610,6 +610,30 @@ class Basic(object):
         """
         return self._args
 
+    def rebuild(self, func):
+        """
+        Apply a function to ``args`` and rebuild expression.
+
+        **Examples**
+
+        >>> from sympy.abc import x, y, z
+
+        >>> (x*y*z).rebuild(lambda arg: arg**2)
+        x**2*y**2*z**2
+        >>> (x*y*z).rebuild(lambda arg: arg + 1)
+        (x + 1)*(y + 1)*(z + 1)
+
+        """
+        args = []
+
+        for arg in self.args:
+            if isinstance(arg, Basic):
+                args.append(func(arg))
+            else:
+                args.append(arg)
+
+        return self.func(*args)
+
     def iter_basic_args(self):
         """
         Iterates arguments of 'self'.
