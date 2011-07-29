@@ -1080,6 +1080,22 @@ class Basic(object):
         return count_ops(self, visual)
         return sum(a.count_ops(visual) for a in self.args)
 
+    def do(self, name, kwargs=None):
+        """Call an ``_eval_do_`` method on any subcomponent of an expression. """
+        expr = self.rebuild(lambda arg: arg.do(name, kwargs))
+        method = getattr(expr, '_eval_do_' + name, None)
+
+        if method is not None:
+            if kwargs is None:
+                kwargs = {}
+
+            result = method(**kwargs)
+
+            if result is not None:
+                expr = result
+
+        return expr
+
     def doit(self, skip=None, only=None, deep=True, **hints):
         """
         Force evaluation of objects that are not evaluated by default.
@@ -1200,6 +1216,9 @@ class Atom(Basic):
             return self
 
     def _eval_doit(self, **hints):
+        return self
+
+    def do(self, method, kwargs=None):
         return self
 
     def __contains__(self, obj):
