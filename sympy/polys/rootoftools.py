@@ -652,11 +652,8 @@ class RootSum(Expr):
     def is_commutative(self):
         return True
 
-    def doit(self, **hints):
-        if hints.get('roots', True):
-            return Add(*map(self.fun, self.poly.all_roots()))
-        else:
-            return self
+    def _eval_doit(self, **hints):
+        return Add(*map(self.fun, self.poly.all_roots()))
 
     def _eval_derivative(self, x):
         var, expr = self.fun.args

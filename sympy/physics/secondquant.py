@@ -282,10 +282,6 @@ class AntiSymmetricTensor(TensorSymbol):
     def __str__(self):
         return "%s(%s,%s)" %self.args
 
-    def doit(self, **kw_args):
-        return self
-
-
 class KroneckerDelta(Function):
     """
     Discrete delta function.
@@ -626,12 +622,6 @@ class SqOperator(Expr):
             return False
         else:
             return True
-
-    def doit(self,**kw_args):
-        """
-        FIXME: hack to prevent crash further up...
-        """
-        return self
 
     def __repr__(self):
         return NotImplemented
@@ -1778,14 +1768,11 @@ class Commutator(Function):
         if a > b:
             return S.NegativeOne*cls(b, a)
 
-
-    def doit(self,**hints):
+    def _eval_doit(self, **hints):
         a = self.args[0]
         b = self.args[1]
 
         if hints.get("wicks"):
-            a = a.doit(**hints)
-            b = b.doit(**hints)
             try:
                 return wicks(a*b) - wicks(b*a)
             except ContractionAppliesOnlyToFermions:
@@ -1793,8 +1780,7 @@ class Commutator(Function):
             except WicksTheoremDoesNotApply:
                 pass
 
-        return (a*b - b*a).doit(**hints)
-
+        return a*b - b*a
 
     def __repr__(self):
         return "Commutator(%s,%s)" %(self.args[0],self.args[1])
@@ -1805,8 +1791,6 @@ class Commutator(Function):
     def _latex(self,printer):
         return "\\left[%s,%s\\right]"%tuple([
             printer._print(arg) for arg in self.args])
-
-
 
 class NO(Expr):
     """
@@ -1956,11 +1940,11 @@ class NO(Expr):
         """
         return self.args[0].args[-1].is_q_annihilator
 
-    def doit(self, **kw_args):
-        if kw_args.get("remove_brackets", True):
+    def _eval_doit(self, **hints):
+        if hints.get("remove_brackets", True):
             return self._remove_brackets()
         else:
-            return self.__new__(type(self),self.args[0].doit(**kw_args))
+            return self.__new__(type(self), self.args[0])
 
     def _remove_brackets(self):
         """

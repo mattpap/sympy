@@ -142,20 +142,9 @@ class Piecewise(Function):
 
         return None
 
-    def doit(self, **hints):
-        newargs = []
-        for e, c in self.args:
-            if hints.get('deep', True):
-                if isinstance(e, Basic):
-                    e = e.doit(**hints)
-                if isinstance(c, Basic):
-                    c = c.doit(**hints)
-            newargs.append((e, c))
-        return Piecewise(*newargs)
-
     def _eval_integral(self,x):
         from sympy.integrals import integrate
-        return  Piecewise(*[(integrate(e, x), c) for e, c in self.args])
+        return Piecewise(*[(integrate(e, x), c) for e, c in self.args])
 
     def _eval_interval(self, sym, a, b):
         """Evaluates the function along the sym in a given interval ab"""

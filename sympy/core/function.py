@@ -1023,12 +1023,8 @@ class Derivative(Expr):
         # couldn't be or evaluate=False originally.
         return Derivative(self.expr, *(self.variables + (v, )), **{'evaluate': False})
 
-    def doit(self, **hints):
-        expr = self.expr
-        if hints.get('deep', True):
-            expr = expr.doit(**hints)
-        hints['evaluate'] = True
-        return Derivative(expr, *self.variables, **hints)
+    def _eval_doit(self, **hints):
+        return self.expr.diff(*self.variables)
 
     @_sympifyit('z0', NotImplementedError)
     def doit_numerically(self, z0):
@@ -1269,8 +1265,8 @@ class Subs(Expr):
         obj = Expr.__new__(cls, expr, new_variables, point, **assumptions)
         return obj
 
-    def doit(self):
-        return self.expr.doit().subs(zip(self.variables, self.point))
+    def _eval_doit(self, **hints):
+        return self.expr.subs(zip(self.variables, self.point))
 
     def evalf(self):
         return self.doit().evalf()

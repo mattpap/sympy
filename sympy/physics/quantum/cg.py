@@ -140,11 +140,11 @@ class Wigner3j(Expr):
             (printer._print(self.j1), printer._print(self.j2), printer._print(self.j3), \
             printer._print(self.m1), printer._print(self.m2), printer._print(self.m3))
 
-    def doit(self, **hints):
+    def _eval_doit(self, **hints):
         if self.is_symbolic:
+            # XXX: this should return self or None (by definition doit() should not fail!)
             raise ValueError("Coefficients must be numerical")
         return wigner_3j(self.j1, self.j2, self.j3, self.m1, self.m2, self.m3)
-
 
 class CG(Wigner3j):
     """Class for Clebsch-Gordan coefficient

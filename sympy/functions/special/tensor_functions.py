@@ -73,6 +73,6 @@ class LeviCivita(Function):
         if len(set(args)) < len(args):
             return S.Zero
 
-    def doit(self):
+    def _eval_doit(self, **hints):
         return eval_levicivita(*self.args)
 

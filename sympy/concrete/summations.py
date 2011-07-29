@@ -71,19 +71,16 @@ class Sum(Expr):
 
         return _free_symbols(self.function, self.limits)
 
-    def doit(self, **hints):
-        #if not hints.get('sums', True):
-        #    return self
+    def _eval_doit(self, **hints):
         f = self.function
+
         for limit in self.limits:
             f = eval_sum(f, limit)
+
             if f is None:
                 return self
 
-        if hints.get('deep', True):
-            return f.doit(**hints)
-        else:
-            return f
+        return f
 
     def _eval_summation(self, f, x):
         return

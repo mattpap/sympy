@@ -63,14 +63,10 @@ class Product(Expr):
     def upper(self):
         return self._args[3]
 
-    def doit(self, **hints):
+    def _eval_doit(self, **hints):
         term = self.term
         lower = self.lower
         upper = self.upper
-        if hints.get('deep', True):
-            term = term.doit(**hints)
-            lower = lower.doit(**hints)
-            upper = upper.doit(**hints)
 
         prod = self._eval_product(lower, upper, term)
 

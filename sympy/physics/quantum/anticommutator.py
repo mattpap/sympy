@@ -110,7 +110,7 @@ class AntiCommutator(Expr):
         # No changes, so return self
         return self
 
-    def doit(self, **hints):
+    def _eval_doit(self, **hints):
         A = self.args[0]
         B = self.args[1]
         if isinstance(A, Operator) and isinstance(B, Operator):
@@ -122,8 +122,8 @@ class AntiCommutator(Expr):
                 except NotImplementedError:
                     comm = None
             if comm is not None:
-                return comm.doit(**hints)
-        return (A*B + B*A).doit(**hints)
+                return comm
+        return A*B + B*A
 
     def _eval_dagger(self):
         return AntiCommutator(Dagger(self.args[0]), Dagger(self.args[1]))

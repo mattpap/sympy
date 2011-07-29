@@ -1080,30 +1080,53 @@ class Basic(object):
         return count_ops(self, visual)
         return sum(a.count_ops(visual) for a in self.args)
 
-    def doit(self, **hints):
-        """Evaluate objects that are not evaluated by default like limits,
-           integrals, sums and products. All objects of this kind will be
-           evaluated recursively, unless some species were excluded via 'hints'
-           or unless the 'deep' hint was set to 'False'.
+    def doit(self, skip=None, only=None, deep=True, **hints):
+        """
+        Force evaluation of objects that are not evaluated by default.
 
-           >>> from sympy import Integral
-           >>> from sympy.abc import x, y
+        Those include limits, integrals, sums, products and other. All objects
+        of this kind will be recursively evaluated, unless the ``deep`` flag
+        was set to ``False``. If you only want to evaluate objects of certain
+        types, specify those types in ``specs`` argument.
 
-           >>> 2*Integral(x, x)
-           2*Integral(x, x)
+        **Examples**
 
-           >>> (2*Integral(x, x)).doit()
-           x**2
+        >>> from sympy import Integral
+        >>> from sympy.abc import x, y
 
-           >>> (2*Integral(x, x)).doit(deep = False)
-           2*Integral(x, x)
+        >>> 2*Integral(x, x)
+        2*Integral(x, x)
+        >>> (2*Integral(x, x)).doit()
+        x**2
+        >>> (2*Integral(x, x)).doit(deep=False)
+        2*Integral(x, x)
 
         """
-        if hints.get('deep', True):
-            terms = [ term.doit(**hints) for term in self.args ]
-            return self.func(*terms)
-        else:
+        cls = self.__class__
+
+        if only is not None and not issubclass(cls, only):
             return self
+        if skip is not None and issubclass(cls, skip):
+            return self
+
+        if deep and not self.is_Atom:
+            expr = self.rebuild(lambda arg: arg.doit(skip, only, deep, **hints))
+
+            if type(expr) != type(self):
+                return expr.doit(skip, only, deep, **hints)
+        else:
+            expr = self
+
+        if hasattr(expr, '_eval_doit'):
+            _expr = expr._eval_doit(**hints)
+
+            if _expr is not None:
+                if deep and expr != _expr:
+                    expr = _expr.doit(skip, only, deep, **hints)
+                else:
+                    expr = _expr
+
+        return expr
 
     def _eval_rewrite(self, pattern, rule, **hints):
         if self.is_Atom:
@@ -1176,7 +1199,7 @@ class Atom(Basic):
         else:
             return self
 
-    def doit(self, **hints):
+    def _eval_doit(self, **hints):
         return self
 
     def __contains__(self, obj):

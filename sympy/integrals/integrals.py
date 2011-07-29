@@ -321,20 +321,13 @@ class Integral(Expr):
         return Integral(function, *newlimits)
 
 
-    def doit(self, **hints):
-        if not hints.get('integrals', True):
-            return self
-
-        deep = hints.get('deep', True)
-
+    def _eval_doit(self, **hints):
         # check for the trivial case of equal upper and lower limits
         if self.is_zero:
             return S.Zero
 
         # now compute and check the function
         function = self.function
-        if deep:
-            function = function.doit(**hints)
 
         if function.is_zero:
             return S.Zero
@@ -374,12 +367,6 @@ class Integral(Expr):
                     if len(xab) == 2:
                         x, b = xab
                         a = None
-
-                    if deep:
-                        if isinstance(a, Basic):
-                            a = a.doit(**hints)
-                        if isinstance(b, Basic):
-                            b = b.doit(**hints)
 
                     if antideriv.is_Poly:
                         gens = list(antideriv.gens)

@@ -162,7 +162,7 @@ class Commutator(Expr):
         else:
             return result
 
-    def doit(self, **hints):
+    def _eval_doit(self, **hints):
         A = self.args[0]
         B = self.args[1]
         if isinstance(A, Operator) and isinstance(B, Operator):
@@ -174,8 +174,8 @@ class Commutator(Expr):
                 except NotImplementedError:
                     comm = None
             if comm is not None:
-                return comm.doit(**hints)
-        return (A*B - B*A).doit(**hints)
+                return comm
+        return A*B - B*A
 
     def _eval_dagger(self):
         return Commutator(Dagger(self.args[1]), Dagger(self.args[0]))

@@ -280,9 +280,6 @@ class QExpr(Expr):
     # Methods from Basic and Expr
     #-------------------------------------------------------------------------
 
-    def doit(self, **kw_args):
-        return self
-
     def _eval_rewrite(self, pattern, rule, **hints):
         # TODO: Make Basic.rewrite get the rule using the class name rather
         # than str(). See L1072 of basic.py.

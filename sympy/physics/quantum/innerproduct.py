@@ -112,7 +112,7 @@ class InnerProduct(Expr):
         ket = printer._print(self.ket, *args)
         return r'\left\langle %s \right. %s' % (bra_label, ket)
 
-    def doit(self, **hints):
+    def _eval_doit(self, **hints):
         try:
             r = self.ket._eval_innerproduct(self.bra, **hints)
         except NotImplementedError:

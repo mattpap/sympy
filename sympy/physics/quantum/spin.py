@@ -614,7 +614,7 @@ class WignerD(AtomicExpr):
         s = prettyForm(*s.right(args))
         return s
 
-    def doit(self, **hints):
+    def _eval_doit(self, **hints):
         hints['evaluate'] = True
         return WignerD(*self.args, **hints)
 

@@ -239,10 +239,6 @@ class Limit(Expr):
         obj._args = (e, z, z0, dir)
         return obj
 
-    def doit(self, **hints):
+    def _eval_doit(self, **hints):
         e, z, z0, dir = self.args
-        if hints.get('deep', True):
-            e = e.doit(**hints)
-            z = z.doit(**hints)
-            z0 = z0.doit(**hints)
         return limit(e, z, z0, dir)

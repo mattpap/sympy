@@ -363,8 +363,8 @@ def test_doit():
 
     assert isinstance(a.doit(), Integral) == False
 
-    assert isinstance(a.doit(integrals=True), Integral) == False
-    assert isinstance(a.doit(integrals=False), Integral) == True
+    assert isinstance(a.doit(only=Integral), Integral) == False
+    assert isinstance(a.doit(skip=Integral), Integral) == True
 
     assert (2*Integral(x, x)).doit() == x**2
 

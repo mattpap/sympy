@@ -166,9 +166,6 @@ class TensorProduct(Expr):
                 s = s + '\\otimes '
         return s
 
-    def doit(self, **hints):
-        return TensorProduct(*[item.doit(**hints) for item in self.args])
-
     def _eval_expand_tensorproduct(self, **hints):
         """Distribute TensorProducts across addition."""
         args = self.args
