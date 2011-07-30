@@ -1822,19 +1822,37 @@ class Matrix(object):
 
     def det(self, method="bareis"):
         """
-        Computes the matrix determinant using the method "method".
+        Computes the matrix determinant using the method ``method``.
 
-        Possible values for "method":
-          bareis ... det_bareis
-          berkowitz ... berkowitz_det
+        **Parameters**
+
+        method : None | str (optional)
+            The method for computing the determinant of a matrix. Possible
+            values: ``bareis``, ``berkowitz`` (default: ``bareis``). The
+            choice of method influences only speed of compuations. Which
+            method is better depends on the nature of the problem (sparsity
+            of the matrix, coefficient domain, etc.).
+
+        **Examples**
+
+        >>> from sympy import Matrix
+        >>> from sympy.abc import x, y
+
+        >>> M = Matrix([[x, 1], [2, y]])
+        >>> M
+        [x, 1]
+        [2, y]
+
+        >>> M.det()
+        x*y - 2
+
         """
-
-        if method == "bareis":
+        if method is None or method == "bareis":
             return self.det_bareis()
         elif method == "berkowitz":
             return self.berkowitz_det()
         else:
-            raise ValueError("Determinant method unrecognized")
+            raise ValueError("unrecognized determinant method: %s" % method)
 
     def det_bareis(self):
         """Compute matrix determinant using Bareis' fraction-free
