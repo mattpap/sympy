@@ -393,8 +393,11 @@ def test_noncommutative_expand_issue658():
 
 def test_as_numer_denom():
     a, b, c = symbols('a, b, c')
-    assert oo.as_numer_denom() == (1, 0)
-    assert (-oo).as_numer_denom() == (-1, 0)
+
+    assert nan.as_numer_denom() == (nan, 1)
+
+    assert oo.as_numer_denom() == (oo, 1)
+    assert (-oo).as_numer_denom() == (-oo, 1)
     assert zoo.as_numer_denom() == (zoo, 1)
     assert (-zoo).as_numer_denom() == (zoo, 1)
 
