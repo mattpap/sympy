@@ -157,6 +157,26 @@ class Matrix(object):
         else:
             raise TypeError("Data type not understood")
 
+    @classmethod
+    def new(cls, rows, cols, mat):
+        obj = object.__new__(cls)
+        obj.rows = rows
+        obj.cols = cols
+        obj.mat = list(mat)
+        return obj
+
+    def as_expr(self):
+        """
+        Convert ``Matrix`` instance to a matrix expression.
+
+        Use this method if you want to obtain a matrix object that can be
+        used in expression. By default, due to mutability, matrices can't
+        be sympified and, thus, used in expressions.
+
+        """
+        from sympy.matrices.symbolic import MatrixExpr
+        return MatrixExpr(self)
+
     def key2ij(self,key):
         """Converts key=(4,6) to 4,6 and ensures the key is correct."""
         if not (is_sequence(key) and len(key) == 2):
@@ -2838,12 +2858,8 @@ def casoratian(seqs, n, zero=True):
 
     return Matrix(k, k, f).det()
 
-# Add sympify converters
-def _matrix_sympify(matrix):
-    raise SympifyError('Matrix cannot be sympified')
-converter[Matrix] = _matrix_sympify
-del _matrix_sympify
-
+# Allow to sympify ``Matrix`` as ``MatrixExpr``
+converter[Matrix] = lambda matrix: matrix.as_expr()
 
 class SparseMatrix(Matrix):
     """Sparse matrix"""

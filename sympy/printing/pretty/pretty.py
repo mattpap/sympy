@@ -433,15 +433,14 @@ class PrettyPrinter(Printer):
 
         return Lim
 
-    # Matrix is special:
-    #
-    # it can exist in SymPy in two forms:
-    # - as Matrix
-    # - as _MatrixAsBasic
-    #
-    # see _MatrixAsBasic docstring, and #420
-    def _print__MatrixAsBasic(self, e):
-        return self._print_Matrix(e.m)
+    def _print_Transpose(self, expr):
+        return self._print(C.Pow(expr.args[0], C.Symbol('T')))
+
+    def _print_Determinant(self, expr):
+        return self._print(C.Symbol('det')(expr.args[0]))
+
+    def _print_MatrixExpr(self, expr):
+        return self._print(expr.as_matrix())
 
     def _print_Matrix(self, e):
         M = e   # matrix
@@ -509,6 +508,8 @@ class PrettyPrinter(Printer):
             D = prettyForm('') # Empty Matrix
 
         D = prettyForm(*D.parens('[',']'))
+        D.baseline = D.height()//2;
+
         return D
 
     def _print_Piecewise(self, pexpr):

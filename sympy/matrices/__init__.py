@@ -6,3 +6,4 @@ from matrices import (Matrix, SparseMatrix, zeros, ones, eye, diag,
      hessian, randMatrix, GramSchmidt, wronskian, casoratian,
      list2numpy, matrix2numpy, DeferredVector, block_diag, symarray, ShapeError,
      NonSquareMatrixError)
+from symbolic import MatrixExpr, Transpose, Determinant, laplace_expand
