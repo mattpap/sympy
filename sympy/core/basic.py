@@ -120,7 +120,7 @@ class Basic(object):
         # If class defines additional attributes, like name in Symbol,
         # then this method should be updated accordingly to return
         # relevant attributes as tuple.
-        return self._args
+        return self.args
 
     def __getstate__(self, cls=None):
         if cls is None:
