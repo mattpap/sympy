@@ -8,7 +8,7 @@ from expr import Expr
 
 class Add(AssocOp):
 
-    __slots__ = ['_coeff', '_terms', '_thash', 'is_commutative']
+    __slots__ = ['_coeff', '_terms', '_thash', 'is_commutative', 'is_evaluated']
 
     is_Add = True
 
@@ -31,7 +31,7 @@ class Add(AssocOp):
             obj._thash = None
             obj._args = args
             obj.is_commutative = all(arg.is_commutative for arg in args)
-            #obj.is_evaluated = False
+            obj.is_evaluated = False
 
             return obj
 
@@ -48,7 +48,7 @@ class Add(AssocOp):
         obj._thash = None
         obj._args = None
         obj.is_commutative = not nc
-        #obj.is_evaluated = True
+        obj.is_evaluated = True
 
         return obj
 
@@ -111,6 +111,7 @@ class Add(AssocOp):
             obj._coeff = None
             obj._terms = None
             obj._thash = None
+            obj.is_evaluated = False
 
             if hasattr(self, 'is_commutative') and (self.is_commutative or not kwargs.pop('reeval', True)):
                 obj.is_commutative = self.is_commutative
@@ -145,12 +146,12 @@ class Add(AssocOp):
         terms = {}
 
         if len(seq) == 2:
-            if seq[0].is_Add:
+            if seq[0].is_Add and seq[0].is_evaluated:
                 o = seq[0]
                 coeff = o._coeff
                 terms = dict(o._terms)
                 del seq[0]
-            elif seq[1].is_Add:
+            elif seq[1].is_Add and seq[1].is_evaluated:
                 o = seq[1]
                 coeff = o._coeff
                 terms = dict(o._terms)
@@ -205,7 +206,7 @@ class Add(AssocOp):
             # Add([...])
             elif o.is_Add:
                 # NB: here we assume Add is always commutative
-                if not (o._coeff is None or o._terms is None):
+                if o.is_evaluated:
                     coeff += o._coeff
 
                     for term in o._terms.iteritems():
