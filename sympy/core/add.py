@@ -102,6 +102,9 @@ class Add(AssocOp):
 
         #return (self._coeff, _thash)
 
+    def _hashable_content(self):
+        return self.args
+
     def _new_rawargs(self, *args, **kwargs):
         #return self.__class__(*args, **kwargs)
 
