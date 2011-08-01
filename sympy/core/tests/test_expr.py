@@ -759,76 +759,76 @@ def test_coeff():
     from sympy.abc import x, y, z
     from sympy import sqrt
 
-    assert (x+1).coeff(x+1) == 1
-    assert (3*x).coeff(0) == None
-    assert (z*(1+x)*x**2).coeff(1+x) == z*x**2
-    assert (1+2*x*x**(1+x)).coeff(x*x**(1+x)) == 2
-    assert (1+2*x**(y+z)).coeff(x**(y+z)) == 2
-    assert (3+2*x+4*x**2).coeff(1) == None
-    assert (3+2*x+4*x**2).coeff(-1) == None
-    assert (3+2*x+4*x**2).coeff(x) == 2
-    assert (3+2*x+4*x**2).coeff(x**2) == 4
-    assert (3+2*x+4*x**2).coeff(x**3) == None
+    assert (x+1).coeff_of(x+1) == 1
+    assert (3*x).coeff_of(0) == None
+    assert (z*(1+x)*x**2).coeff_of(1+x) == z*x**2
+    assert (1+2*x*x**(1+x)).coeff_of(x*x**(1+x)) == 2
+    assert (1+2*x**(y+z)).coeff_of(x**(y+z)) == 2
+    assert (3+2*x+4*x**2).coeff_of(1) == None
+    assert (3+2*x+4*x**2).coeff_of(-1) == None
+    assert (3+2*x+4*x**2).coeff_of(x) == 2
+    assert (3+2*x+4*x**2).coeff_of(x**2) == 4
+    assert (3+2*x+4*x**2).coeff_of(x**3) == None
 
-    assert (-x/8 + x*y).coeff(x) == -S(1)/8 + y
-    assert (-x/8 + x*y).coeff(-x) == S(1)/8
-    assert (4*x).coeff(2*x) == None
-    assert (2*x).coeff(2*x) == 1
+    assert (-x/8 + x*y).coeff_of(x) == -S(1)/8 + y
+    assert (-x/8 + x*y).coeff_of(-x) == S(1)/8
+    assert (4*x).coeff_of(2*x) == None
+    assert (2*x).coeff_of(2*x) == 1
 
     n1, n2 = symbols('n1 n2', commutative=False)
-    assert (n1*n2).coeff(n1) == 1
-    assert (n1*n2).coeff(n2) == n1
-    assert (n1*n2 + x*n1).coeff(n1) == 1 # 1*n1*(n2+x)
-    assert (n2*n1 + x*n1).coeff(n1) == n2 + x
-    assert (n2*n1 + x*n1**2).coeff(n1) == n2
-    assert (n1**x).coeff(n1) == None
-    assert (n1*n2 + n2*n1).coeff(n1) == None
-    assert (2*(n1+n2)*n2).coeff(n1+n2, right=1) == n2
-    assert (2*(n1+n2)*n2).coeff(n1+n2, right=0) == 2
+    assert (n1*n2).coeff_of(n1) == 1
+    assert (n1*n2).coeff_of(n2) == n1
+    assert (n1*n2 + x*n1).coeff_of(n1) == 1 # 1*n1*(n2+x)
+    assert (n2*n1 + x*n1).coeff_of(n1) == n2 + x
+    assert (n2*n1 + x*n1**2).coeff_of(n1) == n2
+    assert (n1**x).coeff_of(n1) == None
+    assert (n1*n2 + n2*n1).coeff_of(n1) == None
+    assert (2*(n1+n2)*n2).coeff_of(n1+n2, right=1) == n2
+    assert (2*(n1+n2)*n2).coeff_of(n1+n2, right=0) == 2
 
     f = Function('f')
-    assert (2*f(x) + 3*f(x).diff(x)).coeff(f(x)) == 2
+    assert (2*f(x) + 3*f(x).diff(x)).coeff_of(f(x)) == 2
 
     expr = z*(x+y)**2
     expr2 = z*(x+y)**2 + z*(2*x + 2*y)**2
-    assert expr.coeff(z) == (x+y)**2
-    assert expr.coeff(x+y) == None
-    assert expr2.coeff(z) == (x+y)**2 + (2*x + 2*y)**2
+    assert expr.coeff_of(z) == (x+y)**2
+    assert expr.coeff_of(x+y) == None
+    assert expr2.coeff_of(z) == (x+y)**2 + (2*x + 2*y)**2
 
-    assert (x + y + 3*z).coeff(1) == x + y
-    assert (-x + 2*y).coeff(-1) == x
-    assert (x - 2*y).coeff(-1) == 2*y
-    assert (3 + 2*x + 4*x**2).coeff(1) == None
-    assert (-x - 2*y).coeff(2) == -y
-    assert (x + sqrt(2)*x).coeff(sqrt(2)) == x
-    assert (3 + 2*x + 4*x**2).coeff(x) ==  2
-    assert (3 + 2*x + 4*x**2).coeff(x**2) == 4
-    assert (3 + 2*x + 4*x**2).coeff(x**3) == None
-    assert (z*(x + y)**2).coeff((x+y)**2) == z
-    assert (z*(x + y)**2).coeff(x+y) == None
-    assert (2 + 2*x + (x+1)*y).coeff(x+1) == y
+    assert (x + y + 3*z).coeff_of(1) == x + y
+    assert (-x + 2*y).coeff_of(-1) == x
+    assert (x - 2*y).coeff_of(-1) == 2*y
+    assert (3 + 2*x + 4*x**2).coeff_of(1) == None
+    assert (-x - 2*y).coeff_of(2) == -y
+    assert (x + sqrt(2)*x).coeff_of(sqrt(2)) == x
+    assert (3 + 2*x + 4*x**2).coeff_of(x) ==  2
+    assert (3 + 2*x + 4*x**2).coeff_of(x**2) == 4
+    assert (3 + 2*x + 4*x**2).coeff_of(x**3) == None
+    assert (z*(x + y)**2).coeff_of((x+y)**2) == z
+    assert (z*(x + y)**2).coeff_of(x+y) == None
+    assert (2 + 2*x + (x+1)*y).coeff_of(x+1) == y
 
     n, m, o, l = symbols('n m o l', commutative=False)
-    assert n.coeff(n) ==  1
-    assert y.coeff(n) == None
-    assert (3*n).coeff(n) == 3
-    assert (2 + n).coeff(x*m) == None
-    assert (2*x*n*m).coeff(x) == 2*n*m
-    assert (2 + n).coeff(x*m*n + y) == None
-    assert (2*x*n*m).coeff(3*n) == None
-    assert (n*m + m*n*m).coeff(n) == 1 + m
-    assert (n*m + m*n*m).coeff(n, right=True) == m # = (1 + m)*n*m
-    assert (n*m + m*n).coeff(n) == None
-    assert (n*m + o*m*n).coeff(m*n) == o
-    assert (n*m + o*m*n).coeff(m*n, right=1) == 1
-    assert (n*m + n*m*n).coeff(n*m, right=1) == 1 + n # = n*m*(n + 1)
+    assert n.coeff_of(n) ==  1
+    assert y.coeff_of(n) == None
+    assert (3*n).coeff_of(n) == 3
+    assert (2 + n).coeff_of(x*m) == None
+    assert (2*x*n*m).coeff_of(x) == 2*n*m
+    assert (2 + n).coeff_of(x*m*n + y) == None
+    assert (2*x*n*m).coeff_of(3*n) == None
+    assert (n*m + m*n*m).coeff_of(n) == 1 + m
+    assert (n*m + m*n*m).coeff_of(n, right=True) == m # = (1 + m)*n*m
+    assert (n*m + m*n).coeff_of(n) == None
+    assert (n*m + o*m*n).coeff_of(m*n) == o
+    assert (n*m + o*m*n).coeff_of(m*n, right=1) == 1
+    assert (n*m + n*m*n).coeff_of(n*m, right=1) == 1 + n # = n*m*(n + 1)
 
 def test_coeff2():
     r, kappa = symbols('r, kappa')
     psi = Function("psi")
     g = 1/r**2 * (2*r*psi(r).diff(r, 1) + r**2 * psi(r).diff(r, 2))
     g = g.expand()
-    assert g.coeff((psi(r).diff(r))) == 2/r
+    assert g.coeff_of((psi(r).diff(r))) == 2/r
 
 def test_coeff2_0():
     r, kappa = symbols('r, kappa')
@@ -836,13 +836,13 @@ def test_coeff2_0():
     g = 1/r**2 * (2*r*psi(r).diff(r, 1) + r**2 * psi(r).diff(r, 2))
     g = g.expand()
 
-    assert g.coeff(psi(r).diff(r, 2)) == 1
+    assert g.coeff_of(psi(r).diff(r, 2)) == 1
 
 def test_coeff_expand():
     expr = z*(x+y)**2
     expr2 = z*(x+y)**2 + z*(2*x + 2*y)**2
-    assert expr.coeff(z) == (x+y)**2
-    assert expr2.coeff(z) == (x+y)**2 + (2*x + 2*y)**2
+    assert expr.coeff_of(z) == (x+y)**2
+    assert expr2.coeff_of(z) == (x+y)**2 + (2*x + 2*y)**2
 
 def test_integrate():
     assert x.integrate(x) == x**2/2

@@ -522,7 +522,7 @@ class Expr(Basic, EvalfMixin):
 
         return [set(c), nc]
 
-    def coeff(self, x, right=False):
+    def coeff_of(self, x, right=False):
         """
         Returns the coefficient of the exact term "x" or None if there is no "x".
 
@@ -536,61 +536,61 @@ class Expr(Basic, EvalfMixin):
 
         You can select terms that have an explicit negative in front of them:
 
-        >>> (-x+2*y).coeff(-1)
+        >>> (-x+2*y).coeff_of(-1)
         x
-        >>> (x-2*y).coeff(-1)
+        >>> (x-2*y).coeff_of(-1)
         2*y
 
         You can select terms with no rational coefficient:
 
-        >>> (x+2*y).coeff(1)
+        >>> (x+2*y).coeff_of(1)
         x
-        >>> (3+2*x+4*x**2).coeff(1)
+        >>> (3+2*x+4*x**2).coeff_of(1)
 
         You can select terms that have a numerical term in front of them:
 
-        >>> (-x-2*y).coeff(2)
+        >>> (-x-2*y).coeff_of(2)
         -y
         >>> from sympy import sqrt
-        >>> (x+sqrt(2)*x).coeff(sqrt(2))
+        >>> (x+sqrt(2)*x).coeff_of(sqrt(2))
         x
 
         The matching is exact:
 
-        >>> (3+2*x+4*x**2).coeff(x)
+        >>> (3+2*x+4*x**2).coeff_of(x)
         2
-        >>> (3+2*x+4*x**2).coeff(x**2)
+        >>> (3+2*x+4*x**2).coeff_of(x**2)
         4
-        >>> (3+2*x+4*x**2).coeff(x**3)
-        >>> (z*(x+y)**2).coeff((x+y)**2)
+        >>> (3+2*x+4*x**2).coeff_of(x**3)
+        >>> (z*(x+y)**2).coeff_of((x+y)**2)
         z
-        >>> (z*(x+y)**2).coeff(x+y)
+        >>> (z*(x+y)**2).coeff_of(x+y)
 
         In addition, no factoring is done, so 2 + y is not obtained from the
         following:
 
-        >>> (2*x+2+(x+1)*y).coeff(x+1)
+        >>> (2*x+2+(x+1)*y).coeff_of(x+1)
         y
 
         >>> n, m, o = symbols('n m o', commutative=False)
-        >>> n.coeff(n)
+        >>> n.coeff_of(n)
         1
-        >>> (3*n).coeff(n)
+        >>> (3*n).coeff_of(n)
         3
-        >>> (n*m + m*n*m).coeff(n) # = (1 + m)*n*m
+        >>> (n*m + m*n*m).coeff_of(n) # = (1 + m)*n*m
         1 + m
-        >>> (n*m + m*n*m).coeff(n, right=True) # = (1 + m)*n*m
+        >>> (n*m + m*n*m).coeff_of(n, right=True) # = (1 + m)*n*m
         m
 
         If there is more than one possible coefficient None is returned:
 
-        >>> (n*m + m*n).coeff(n)
+        >>> (n*m + m*n).coeff_of(n)
 
         If there is only one possible coefficient, it is returned:
 
-        >>> (n*m + o*m*n).coeff(m*n)
+        >>> (n*m + o*m*n).coeff_of(m*n)
         o
-        >>> (n*m + o*m*n).coeff(m*n, right=1)
+        >>> (n*m + o*m*n).coeff_of(m*n, right=1)
         1
         """
         x = sympify(x)

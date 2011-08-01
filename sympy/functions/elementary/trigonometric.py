@@ -78,7 +78,7 @@ def _pi_coeff(arg, cycles=1):
     elif not arg:
         return S.Zero
     elif arg.is_Mul:
-        cx = arg.coeff(S.Pi)
+        cx = arg.coeff_of(S.Pi)
         if cx:
             c, x = cx.as_coeff_Mul() # pi is not included as coeff
             if c.is_Float:

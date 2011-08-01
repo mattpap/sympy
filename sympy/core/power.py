@@ -197,7 +197,7 @@ class Pow(Expr):
                   self.base in [S.ImaginaryUnit, -S.ImaginaryUnit]):
                 return True
         if real_b and im_e:
-            c = self.exp.coeff(S.ImaginaryUnit)
+            c = self.exp.coeff_of(S.ImaginaryUnit)
             if c:
                 ok = (c*C.log(self.base)/S.Pi).is_Integer
                 if ok is not None:
