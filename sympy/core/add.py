@@ -17,7 +17,7 @@ class Add(AssocOp):
 
     @cacheit
     def __new__(cls, *args, **options):
-        args = map(_sympify, args)
+        args = tuple(map(_sympify, args))
 
         if not args:
             return S.Zero
@@ -144,6 +144,8 @@ class Add(AssocOp):
         '''
         coeff = S.Zero
         terms = {}
+
+        seq = list(seq)
 
         if len(seq) == 2:
             if seq[0].is_Add and seq[0].is_evaluated:
@@ -295,8 +297,8 @@ class Add(AssocOp):
             # change the zoo nature; if unbounded a NaN condition could result if
             # the unbounded symbol had sign opposite of the unbounded portion of zoo,
             # e.g. unbounded_real - unbounded_real
-            terms = dict([ (f, c) for f, c in terms.iteritems() if not (c.is_bounded and
-                                                                        c.is_real is not None)])
+            terms = dict([ (f, c) for f, c in terms.iteritems() if not (f.is_bounded and
+                                                                        f.is_real is not None)])
 
         nc = False
 
