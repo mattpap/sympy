@@ -8,7 +8,7 @@ from expr import Expr
 
 class Add(AssocOp):
 
-    __slots__ = ['_coeff', '_terms', '_thash', 'has_Order', 'is_commutative', 'is_evaluated']
+    __slots__ = ['_coeff', '_terms', 'has_Order', 'is_commutative', 'is_evaluated']
 
     is_Add = True
 
@@ -28,7 +28,6 @@ class Add(AssocOp):
             obj = Expr.__new__(cls)
             obj._coeff = None
             obj._terms = None
-            obj._thash = None
             obj._args = args
             obj.has_Order = any(arg.is_Order for arg in args)
             obj.is_commutative = all(arg.is_commutative for arg in args)
@@ -36,7 +35,6 @@ class Add(AssocOp):
 
             return obj
 
-        #coeff, terms, nc = cls.flatten(args)
         coeff, terms, nc, ot = cls.flatten(args)
 
         if not terms:
@@ -47,7 +45,6 @@ class Add(AssocOp):
         obj = Expr.__new__(cls)
         obj._coeff = coeff
         obj._terms = terms
-        obj._thash = None
         obj._args = None
         obj.has_Order = ot
         obj.is_commutative = not nc
@@ -97,26 +94,15 @@ class Add(AssocOp):
 
         return _args
 
-    #def _hashable_content(self):
-        #_thash = self._thash
-
-        #if _thash is None:
-            #self._thash = _thash = tuple(sorted(self._terms.items(), key=hash))
-
-        #return (self._coeff, _thash)
-
     def _hashable_content(self):
         return self.args
 
     def _new_rawargs(self, *args, **kwargs):
-        #return self.__class__(*args, **kwargs)
-
         if len(args) > 1:
             obj = Expr.__new__(self.__class__, *args)
 
             obj._coeff = None
             obj._terms = None
-            obj._thash = None
             obj.has_Order = any(arg.is_Order for arg in args)
             obj.is_evaluated = False
 
@@ -141,16 +127,10 @@ class Add(AssocOp):
         Applies associativity, all terms are commutable with respect to
         addition.
         """
-        '''
-        terms = {}      # term -> coeff
-                        # e.g. x**2 -> 5   for ... + 5*x**2 + ...
-
         coeff = S.Zero  # standalone term
                         # e.g. 3 + ...
-        order_terms = []
-        '''
-        coeff = S.Zero
-        terms = {}
+        terms = {}      # term -> coeff
+                        # e.g. x**2 -> 5   for ... + 5*x**2 + ...
 
         seq = list(seq)
 
@@ -257,39 +237,6 @@ class Add(AssocOp):
             # 2*x**2 + 3*x**2  ->  5*x**2
             add_term(s, c)
 
-            ###if s in terms:
-                ###terms[s] += c
-            ###else:
-                ###terms[s] = c
-
-
-        # now let's construct new args:
-        # [2*x**2, x**3, 7*x**4, pi, ...]
-        '''
-        newseq = []
-        noncommutative = False
-        for s,c in terms.items():
-            # 0*s
-            if c is S.Zero:
-                continue
-            # 1*s
-            elif c is S.One:
-                newseq.append(s)
-            # c*s
-            else:
-                if s.is_Mul:
-                    # Mul, already keeps its arguments in perfect order.
-                    # so we can simply put c in slot0 and go the fast way.
-                    cs = s._new_rawargs(*((c,) + s.args))
-                    newseq.append(cs)
-
-                else:
-                    # alternatively we have to call all Mul's machinery (slow)
-                    newseq.append(Mul(c,s))
-
-            noncommutative = noncommutative or not s.is_commutative
-        '''
-
         # oo, -oo
         if coeff is S.Infinity:
             terms = dict([ (f, c) for f, c in terms.iteritems() if not (f.is_nonnegative or f.is_real and
@@ -342,44 +289,6 @@ class Add(AssocOp):
             ot = True
 
         return coeff, terms, nc, ot
-
-        '''
-        newseq2 = []
-        for t in newseq:
-            for o in order_terms:
-                # x + O(x) -> O(x)
-                if o.contains(t):
-                    t = None
-                    break
-            # x + O(x**2) -> x + O(x**2)
-            if t is not None:
-                newseq2.append(t)
-        newseq = newseq2 + order_terms
-        # 1 + O(1) -> O(1)
-        for o in order_terms:
-            if o.contains(coeff):
-                coeff = S.Zero
-                break
-        '''
-
-        # order args canonically
-        # Currently we sort things using hashes, as it is quite fast. A better
-        # solution is not to sort things at all - but this needs some more
-        # fixing.
-        ###newseq.sort(key=hash)
-
-        # current code expects coeff to be always in slot-0
-        ###if coeff is not S.Zero:
-            ###newseq.insert(0, coeff)
-
-        # we are done
-        #return coeff, terms, nc, ot #, () #newseq # args
-        '''
-        if noncommutative:
-            return [], newseq, None
-        else:
-            return newseq, [], None
-        '''
 
     @classmethod
     def class_key(cls):
