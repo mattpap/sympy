@@ -8,7 +8,7 @@ from expr import Expr
 
 class Add(AssocOp):
 
-    __slots__ = ['_coeff', '_terms', '_thash', 'is_commutative', 'is_evaluated']
+    __slots__ = ['_coeff', '_terms', '_thash', 'has_Order', 'is_commutative', 'is_evaluated']
 
     is_Add = True
 
@@ -30,12 +30,14 @@ class Add(AssocOp):
             obj._terms = None
             obj._thash = None
             obj._args = args
+            obj.has_Order = any(arg.is_Order for arg in args)
             obj.is_commutative = all(arg.is_commutative for arg in args)
             obj.is_evaluated = False
 
             return obj
 
-        coeff, terms, nc = cls.flatten(args)
+        #coeff, terms, nc = cls.flatten(args)
+        coeff, terms, nc, ot = cls.flatten(args)
 
         if not terms:
             return coeff
@@ -47,6 +49,7 @@ class Add(AssocOp):
         obj._terms = terms
         obj._thash = None
         obj._args = None
+        obj.has_Order = ot
         obj.is_commutative = not nc
         obj.is_evaluated = True
 
@@ -114,6 +117,7 @@ class Add(AssocOp):
             obj._coeff = None
             obj._terms = None
             obj._thash = None
+            obj.has_Order = any(arg.is_Order for arg in args)
             obj.is_evaluated = False
 
             if hasattr(self, 'is_commutative') and (self.is_commutative or not kwargs.pop('reeval', True)):
@@ -151,12 +155,12 @@ class Add(AssocOp):
         seq = list(seq)
 
         if len(seq) == 2:
-            if seq[0].is_Add and seq[0].is_evaluated:
+            if seq[0].is_Add and seq[0].is_evaluated and seq[0].has_Order is False:
                 o = seq[0]
                 coeff = o._coeff
                 terms = dict(o._terms)
                 del seq[0]
-            elif seq[1].is_Add and seq[1].is_evaluated:
+            elif seq[1].is_Add and seq[1].is_evaluated and seq[1].has_Order is False:
                 o = seq[1]
                 coeff = o._coeff
                 terms = dict(o._terms)
@@ -193,18 +197,18 @@ class Add(AssocOp):
             elif o.is_Number:
                 if o is S.NaN or coeff is S.ComplexInfinity and o.is_bounded is False:
                     # we know for sure the result will be nan
-                    return S.NaN, {}, False #, [S.NaN]
+                    return S.NaN, {}, False, False #, [S.NaN]
                 if coeff.is_Number:
                     coeff += o
                     if coeff is S.NaN:
                         # we know for sure the result will be nan
-                        return S.NaN, {}, False #, [S.NaN]
+                        return S.NaN, {}, False, False #, [S.NaN]
                 continue
 
             elif o is S.ComplexInfinity:
                 if coeff.is_bounded is False:
                     # we know for sure the result will be nan
-                    return S.NaN, {}, False #, [S.NaN]
+                    return S.NaN, {}, False, False #, [S.NaN]
                 coeff = S.ComplexInfinity
                 continue
 
@@ -214,8 +218,14 @@ class Add(AssocOp):
                 if o.is_evaluated:
                     coeff += o._coeff
 
-                    for term in o._terms.iteritems():
-                        add_term(*term)
+                    #for term in o._terms.iteritems():
+                        #add_term(*term)
+
+                    for _monom, _coeff in o._terms.iteritems():
+                        if _monom.is_Order:
+                            seq.append(_coeff*_monom)
+                        else:
+                            add_term(_monom, _coeff)
                 else:
                     seq.extend(o.args)
 
@@ -304,6 +314,7 @@ class Add(AssocOp):
                                                                         f.is_real is not None)])
 
         nc = False
+        ot = False
 
         for t in terms:
             if not t.is_commutative:
@@ -312,9 +323,6 @@ class Add(AssocOp):
 
         # process O(x)
         if order_terms:
-            #import pdb
-            #pdb.set_trace()
-
             for t in dict(terms):
                 for o in order_terms:
                     # x + O(x) -> O(x)
@@ -331,24 +339,28 @@ class Add(AssocOp):
                     coeff = S.Zero
                     break
 
-            '''
-            newseq2 = []
-            for t in newseq:
-                for o in order_terms:
-                    # x + O(x) -> O(x)
-                    if o.contains(t):
-                        t = None
-                        break
-                # x + O(x**2) -> x + O(x**2)
-                if t is not None:
-                    newseq2.append(t)
-            newseq = newseq2 + order_terms
-            # 1 + O(1) -> O(1)
+            ot = True
+
+        return coeff, terms, nc, ot
+
+        '''
+        newseq2 = []
+        for t in newseq:
             for o in order_terms:
-                if o.contains(coeff):
-                    coeff = S.Zero
+                # x + O(x) -> O(x)
+                if o.contains(t):
+                    t = None
                     break
-            '''
+            # x + O(x**2) -> x + O(x**2)
+            if t is not None:
+                newseq2.append(t)
+        newseq = newseq2 + order_terms
+        # 1 + O(1) -> O(1)
+        for o in order_terms:
+            if o.contains(coeff):
+                coeff = S.Zero
+                break
+        '''
 
         # order args canonically
         # Currently we sort things using hashes, as it is quite fast. A better
@@ -361,7 +373,7 @@ class Add(AssocOp):
             ###newseq.insert(0, coeff)
 
         # we are done
-        return coeff, terms, nc #, () #newseq # args
+        #return coeff, terms, nc, ot #, () #newseq # args
         '''
         if noncommutative:
             return [], newseq, None
