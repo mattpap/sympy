@@ -73,7 +73,7 @@ class Add(AssocOp):
                 if s.is_Mul:
                     # Mul, already keeps its arguments in perfect order.
                     # so we can simply put c in slot0 and go the fast way.
-                    cs = s._new_rawargs(*((c,) + s.args))
+                    cs = s.from_coeff_args(c, *s.args)
                     newseq.append(cs)
 
                 else:

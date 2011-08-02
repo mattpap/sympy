@@ -25,6 +25,9 @@ class Mul(AssocOp):
     #identity = S.One
     # cyclic import, so defined in numbers.py
 
+    def from_coeff_args(self, coeff, *args):
+        return self._new_rawargs(*((coeff,) + args))
+
     @classmethod
     def flatten(cls, seq):
 
