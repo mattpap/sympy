@@ -29,6 +29,11 @@ class Mul(AssocOp):
         return self._new_rawargs(*((coeff,) + args))
 
     @classmethod
+    def from_cls_coeff_args(cls, coeff, *args):
+        obj = object.__new__(Mul)
+        return obj._new_rawargs(*((coeff,) + args))
+
+    @classmethod
     def flatten(cls, seq):
 
         # apply associativity, separate commutative part of seq

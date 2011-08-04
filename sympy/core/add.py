@@ -40,7 +40,14 @@ class Add(AssocOp):
         if not terms:
             return coeff
         elif not coeff and len(terms) == 1:
-            return Mul(*terms.popitem())
+            monom, coeff = terms.popitem()
+
+            if coeff is S.One:
+                return monom
+            elif monom.is_Mul:
+                return monom.from_coeff_args(coeff, *monom.args)
+            else:
+                return Mul.from_cls_coeff_args(coeff, monom)
 
         obj = Expr.__new__(cls)
         obj._coeff = coeff
@@ -59,11 +66,9 @@ class Add(AssocOp):
         noncommutative = False
 
         for s, c in terms.items():
-            # 0*s
-            if c is S.Zero:
-                continue
+            # 0*s -> can't happen
             # 1*s
-            elif c is S.One:
+            if c is S.One:
                 newseq.append(s)
             # c*s
             else:
