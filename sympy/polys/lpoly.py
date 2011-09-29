@@ -11,6 +11,7 @@ from sympy.polys.monomialtools import (
 
 from sympy.core import Add, Mul, Pow, Rational
 from sympy.functions import sin, cos, exp, log
+from sympy.polys.domains import QQ
 
 from copy import copy
 
@@ -2552,7 +2553,7 @@ class Poly(dict):
             return p
         p1 = lp1(0)
         for expv, c in p.iteritems():
-            p1[expv] = Rational(c.numerator, c.denominator)
+            p1[expv] = QQ.to_sympy(c)
         return p1
 
 
@@ -2574,7 +2575,7 @@ class Poly(dict):
         ring = p.lp.ring
         if str(ring) == 'QQ':
             def convert(c):
-                return Rational(c.numerator, c.denominator)
+                return ring.to_sympy(c)
         else:
             def convert(c):
                 return c

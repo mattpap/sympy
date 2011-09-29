@@ -149,7 +149,7 @@ def tobasic(num, tev, typn):
     gens = tev[typn].gens
     if typn == 0:
         for m1, c1 in num.iteritems():
-            c1 = Rational(c1.numerator, c1.denominator)
+            c1 = QQ.to_sympy(c1)
             m1 = monomial_tobasic(m1, *gens)
             p2 += c1*m1
     else:
