@@ -6,27 +6,14 @@ with monomial_ prefix; their implementation can be a tuple
 """
 
 from sympy.polys.monomialtools import (
-    monomial_mul,
-    monomial_div,
-    monomial_lcm,
-    monomial_min,
-    monomial_lex_key as O_lex,
-    monomial_grlex_key as O_grlex,
-    monomial_grevlex_key as O_grevlex,
+    monomial_mul, monomial_div, monomial_min,
 )
 
-from sympy.polys.polyerrors import (
-    ExactQuotientFailed, DomainError,
-)
-from operator import itemgetter
-from sympy.core.sympify import sympify
-from sympy.core.numbers import Rational, Number
-from sympy.core import S, Add, Mul, Pow
-from sympy.polys.domains import QQ
-#from sympy.functions.elementary.exponential import log as sympy_log
-import sympy
+from sympy.core import Add, Mul, Pow, Rational
+from sympy.functions import sin, cos, exp, log
 
 from copy import copy
+
 import re
 import math
 
@@ -2051,8 +2038,7 @@ class Poly(dict):
                 if lp.zero_mon in p:
                     c = p[lp.zero_mon]
                     if c.is_positive:
-                        return sympy.functions.elementary.exponential.log(c) + \
-                            (p/c).log(iv, nv)
+                        return log(c) + (p/c).log(iv, nv)
                     else:
                         raise NotImplementedError
             raise NotImplementedError('p-1 must not have a constant term in the series variables')
@@ -2402,7 +2388,7 @@ class Poly(dict):
             zm = lp.zero_mon
             if not lp.SR:
                 raise TaylorEvalError('p must not have constant part in series variables')
-            return sympy.exp(p[zm])*(p - p[zm]).exp(iv, nv)
+            return exp(p[zm])*(p - p[zm]).exp(iv, nv)
         p1 = lp(1)
         if hasattr(nv, '__hex__') and len(p) > 20 and lp.commuting:
             if iv in lp.pol_gens and hasattr(nv, '__hex__'):
@@ -2444,7 +2430,7 @@ class Poly(dict):
             if c.is_number and not c.is_real:
                 raise TaylorEvalError
             p1 = p - c
-            return sympy.cos(c)*p1.sin(iv, nv) + sympy.sin(c)*p1.cos(iv, nv)
+            return cos(c)*p1.sin(iv, nv) + sin(c)*p1.cos(iv, nv)
         # get a good value
         if len(p) > 20:
             t = (p/2).tan(iv, nv)
@@ -2487,7 +2473,7 @@ class Poly(dict):
             if not c.is_real:
                 raise NotImplementedError
             p1 = p - c
-            return sympy.cos(c)*p1.cos(iv, nv) - sympy.sin(c)*p1.sin(iv, nv)
+            return cos(c)*p1.cos(iv, nv) - sin(c)*p1.sin(iv, nv)
         # get a good value
         if len(p) > 20:
             t = (p/2).tan(iv, nv)

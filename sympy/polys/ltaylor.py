@@ -1,9 +1,8 @@
-from sympy.polys.lpoly import (lgens, LPoly, monomial_tobasic, TaylorEvalError)
+from sympy.polys.lpoly import (LPoly, monomial_tobasic, TaylorEvalError)
 from sympy.series.order import O
 from sympy.core.singleton import S
 from sympy.polys.domains import QQ
 from sympy.polys.monomialtools import monomial_lex_key as O_lex
-from sympy.functions.elementary.miscellaneous import sqrt
 from sympy.functions.elementary.trigonometric import (cos, sin, tan, asin, atan, acos, acot)
 from sympy.functions.elementary.exponential import (exp, log, LambertW)
 from sympy.functions.elementary.hyperbolic import (sinh, cosh, tanh, atanh, asinh, acosh, acoth)
@@ -16,7 +15,6 @@ from sympy import I
 from sympy.core.sympify import sympify
 
 # TODO cot(x), coth(x)
-
 
 def _is_monomial(p, var):
     """if p is a monomial c*var**n, where n is a real number,
