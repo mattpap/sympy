@@ -2,7 +2,7 @@ from sympy.polys.lpoly import (LPoly, monomial_tobasic, TaylorEvalError)
 from sympy.series.order import O
 from sympy.core.singleton import S
 from sympy.polys.domains import QQ
-from sympy.polys.monomialtools import monomial_lex_key as O_lex
+from sympy.polys.monomialtools import lex
 from sympy.functions.elementary.trigonometric import (cos, sin, tan, asin, atan, acos, acot)
 from sympy.functions.elementary.exponential import (exp, log, LambertW)
 from sympy.functions.elementary.hyperbolic import (sinh, cosh, tanh, atanh, asinh, acosh, acoth)
@@ -318,8 +318,8 @@ def taylor(p, var=None, start=0, prec=6, dir="+", pol_pars=[]):
             for n0, c0 in pol_part:
                 res += c0*var**n0
 
-        lpq = LPoly(lpol_vars, QQ, O_lex)
-        lps = LPoly(lpol_vars, sympify, O_lex)
+        lpq = LPoly(lpol_vars, QQ, lex)
+        lps = LPoly(lpol_vars, sympify, lex)
         tev = (TaylorEval(gens, lpq), TaylorEval(gens, lps))
 
         for p1 in non_pol_part:
@@ -354,8 +354,8 @@ def taylor(p, var=None, start=0, prec=6, dir="+", pol_pars=[]):
                     return c*p + O(var**prec)
             return c*p
 
-    lpq = LPoly(lpol_vars, QQ, O_lex)
-    lps = LPoly(lpol_vars, sympify, O_lex)
+    lpq = LPoly(lpol_vars, QQ, lex)
+    lps = LPoly(lpol_vars, sympify, lex)
     tev = (TaylorEval(gens, lpq), TaylorEval(gens, lps))
     p1, ord1 = taylor_term(p, var, tev, 0, start, prec, dir, pol_pars)
     if ord1:

@@ -84,10 +84,10 @@ class BaseLPoly(object):
     in it ^ instead of ** is used as exponent symbol.
 
     >>> from sympy.core.numbers import Rational as QQ
-    >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+    >>> from sympy.polys.monomialtools import lex
     >>> from sympy.polys.lpoly import LPoly
 
-    >>> lp = LPoly('x, y', QQ, O_lex)
+    >>> lp = LPoly('x, y', QQ, lex)
     >>> lp.zero_mon
     (0, 0)
     >>> x, y = lp.gens()
@@ -293,9 +293,9 @@ class BaseLPoly(object):
         where c_i are coefficients and m_i are monomials
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = lp('1/2 + 2/3*x^4 + 1/5*x*y^2')
         >>> str(p)
         ' +2/3*x^4 +1/5*x*y^2 +1/2'
@@ -386,11 +386,11 @@ class MLPoly(BaseLPoly):
     This class differs from LPoly only because the coefficients of
     its polynomials are surrounded by parenthesis
 
-    >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+    >>> from sympy.polys.monomialtools import lex
     >>> from sympy.polys.lpoly import lgens, MLPoly
     >>> from sympy.core import sympify
     >>> from sympy.functions.elementary.exponential import log
-    >>> lp, x, y = lgens('x, y', sympify, O_lex)
+    >>> lp, x, y = lgens('x, y', sympify, lex)
     >>> p = (x + x*log(2) + y)**2
     >>> lp.__class__
      <class 'sympy.polys.lpoly.MLPoly'>
@@ -415,9 +415,9 @@ def lgens(pol_gens, ring, order, **kwds):
      factory function to generate LPoly object and its generators
 
     >>> from sympy.core.numbers import Rational as QQ
-    >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+    >>> from sympy.polys.monomialtools import lex
     >>> from sympy.polys.lpoly import lgens
-    >>> lp, x, y = lgens('x, y', QQ, O_lex)
+    >>> lp, x, y = lgens('x, y', QQ, lex)
     >>> p = (x + y)**2
     >>> str(p)
     ' +x^2 +2*x*y +y^2'
@@ -453,9 +453,9 @@ class Poly(dict):
     elements of a multivariate polynomial ring
 
     >>> from sympy.core.numbers import Rational as QQ
-    >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+    >>> from sympy.polys.monomialtools import lex
     >>> from sympy.polys.lpoly import lgens, Poly
-    >>> lp, x, y = lgens('x, y', QQ, O_lex)
+    >>> lp, x, y = lgens('x, y', QQ, lex)
     >>> p = Poly(lp)
     >>> str(p)
     '0'
@@ -472,9 +472,9 @@ class Poly(dict):
         Terms are in decreasing order; term coefficients are in front
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x**2/3 + 2*x*y**2/5
         >>> str(p)
         ' +1/3*x^2 +2/5*x*y^2'
@@ -556,9 +556,9 @@ class Poly(dict):
         variables occurring in the polynomial p
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y, z = lgens('x, y, z', QQ, O_lex)
+        >>> lp, x, y, z = lgens('x, y, z', QQ, lex)
         >>> p = x + y**2 + x*y
         >>> p.variables()
         (0, 1)
@@ -579,9 +579,9 @@ class Poly(dict):
         equality test for polynomials
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p1 = (x+y)**2 + (x-y)**2
         >>> p2 = 4*x*y
         >>> p1 == p2
@@ -607,9 +607,9 @@ class Poly(dict):
         """add two polynomials
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = (x+y)**2 + (x-y)**2
         >>> str(p)
         ' +2*x^2 +2*y^2'
@@ -669,9 +669,9 @@ class Poly(dict):
         can copy the polynomial
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = (x+y)**2
         >>> p1 = p.copy()
         >>> p2 = p
@@ -691,9 +691,9 @@ class Poly(dict):
         divided by p1
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = (1 + x + y)**3
         >>> p1 = p.coefficient(y**2)
         >>> str(p1)
@@ -723,9 +723,9 @@ class Poly(dict):
         """monomial coefficient in self of the leading monomial of p1
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = (1 + x + y)**3/5
         >>> p.coeff(y**2)
         3/5
@@ -742,9 +742,9 @@ class Poly(dict):
         """
         substitution
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x**2 + y**2
         >>> p1 = p.subs(x=x+y, y=x-y)
         >>> str(p1)
@@ -759,9 +759,9 @@ class Poly(dict):
         substitution with truncation
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x**2 + y**2
         >>> p2 = p.subs_trunc('x', 3, y=(x+y)**2)
         >>> str(p2)
@@ -798,9 +798,9 @@ class Poly(dict):
         """inplace add polynomials
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p1 = x + y**2
         >>> p2 = x**2
         >>> p3 = p1
@@ -845,9 +845,9 @@ class Poly(dict):
         subtraction of polynomials
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p1 = x + y**2
         >>> p2 = x*y + y**2
         >>> p3 = p1 - p2
@@ -902,9 +902,9 @@ class Poly(dict):
         n - p1 with n convertible to the coefficient ring
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x + y
         >>> p1 = 4 - p
         >>> str(p1)
@@ -953,9 +953,9 @@ class Poly(dict):
         """multiply two polynomials
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p1 = x + y
         >>> p2 = x - y
         >>> p3 = p1*p2
@@ -996,9 +996,9 @@ class Poly(dict):
          p2 + p1 with p2 in the coefficient ring of p1
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x + y
         >>> p1 = 4 * p
         >>> str(p1)
@@ -1019,9 +1019,9 @@ class Poly(dict):
         """p += p1*p2
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x**2
         >>> p1 = x + y
         >>> p2 = x - y
@@ -1046,9 +1046,9 @@ class Poly(dict):
         coefficient ring
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x + y**2
         >>> p.imul_num(3)
         >>> str(p)
@@ -1065,9 +1065,9 @@ class Poly(dict):
         coefficient ring
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x + y**2
         >>> p1 = p.mul_num(3)
         >>> str(p1)
@@ -1085,9 +1085,9 @@ class Poly(dict):
         exact division by a polynomial
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p1 = (x**2 + x + y)*(x**2-y**2)
         >>> p2 = x + y
         >>> p3 = p1/p2
@@ -1135,10 +1135,10 @@ class Poly(dict):
         a = ((i0, i1, ...), coeff)
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
         >>> from sympy.polys.lpoly import monomial_from_sequence
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x**4 + 2*y
         >>> m = monomial_from_sequence((1, 2))
         >>> p.iadd_mon((m, 5))
@@ -1160,10 +1160,10 @@ class Poly(dict):
         c coefficient
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
         >>> from sympy.polys.lpoly import monomial_from_sequence
-        >>> lp, x, y, z = lgens('x, y, z', QQ, O_lex)
+        >>> lp, x, y, z = lgens('x, y, z', QQ, lex)
         >>> p1 = x**4 + 2*y
         >>> p2 = y + z
         >>> m = monomial_from_sequence((1, 2, 3))
@@ -1185,9 +1185,9 @@ class Poly(dict):
         """leading monomial tuple according to the monomial ordering
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y, z = lgens('x, y, z', QQ, O_lex)
+        >>> lp, x, y, z = lgens('x, y, z', QQ, lex)
         >>> p = x**4 + x**3*y + x**2*z**2 + z**7
         >>> p.leading_expv()
         (4, 0, 0)
@@ -1202,9 +1202,9 @@ class Poly(dict):
         """leading term according to the monomial ordering
 
        >>> from sympy.core.numbers import Rational as QQ
-       >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+       >>> from sympy.polys.monomialtools import lex
        >>> from sympy.polys.lpoly import lgens
-       >>> lp, x, y = lgens('x, y', QQ, O_lex)
+       >>> lp, x, y = lgens('x, y', QQ, lex)
        >>> p = (x+y)**4
        >>> p1 = p.leading_term()
        >>> str(p1)
@@ -1220,9 +1220,9 @@ class Poly(dict):
         """square of a polynomial
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x + y**2
         >>> p1 = p.square()
         >>> str(p1)
@@ -1252,9 +1252,9 @@ class Poly(dict):
         """power of a polynomial
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x + y**2
         >>> p1 = p**3
         >>> str(p1)
@@ -1312,9 +1312,9 @@ class Poly(dict):
            self = sum(fv[i]*qv[i]) + r
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> f = x**3
         >>> f0 = x-y**2
         >>> f1 = x-y
@@ -1397,9 +1397,9 @@ class Poly(dict):
         i is the name of the variable x, or its index
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = (x+y)**4
         >>> p1 = p.trunc('x', 3)
         >>> str(p1)
@@ -1432,9 +1432,9 @@ class Poly(dict):
         neglect in p1*p2 the monomials containing x_j^k, k >= i_j
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p1 = (x + y)**2
         >>> p2 = p1.mul_trunc(x**2, 'x', 3)
         >>> str(p2)
@@ -1475,9 +1475,9 @@ class Poly(dict):
         neglect in p1*p2 the monomials containing x_j^k, k >= i_j
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p1 = (x + y)**2
         >>> p2 = p1.square_trunc('x', 3)
         >>> str(p2)
@@ -1519,9 +1519,9 @@ class Poly(dict):
         """truncation of self**n using mul_trunc
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p1 = 1 + x + y
         >>> p2 = p1.pow_trunc(3, 'y', 2)
         >>> str(p2)
@@ -1617,16 +1617,16 @@ class Poly(dict):
         p has constant term different from zero
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
         >>> from sympy.core import sympify
         >>> from sympy import Symbol
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = (1 + y*x).series_inversion('x', 6)
         >>> str(p)
         ' -x^5*y^5 +x^4*y^4 -x^3*y^3 +x^2*y^2 -x*y +1'
         >>> a = Symbol('a')
-        >>> lp, x = lgens('x', sympify, O_lex)
+        >>> lp, x = lgens('x', sympify, lex)
         >>> p1 = (1 + a + x).series_inversion('x', 3)
         >>> str(p1)
         ' +((a + 1)**(-3))*x^2 +(-1/(a + 1)**2)*x +(1/(a + 1))'
@@ -1650,9 +1650,9 @@ class Poly(dict):
         corresponding string.
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x + x**2*y**3
         >>> p1 = p.derivative('x')
         >>> str(p1)
@@ -1681,9 +1681,9 @@ class Poly(dict):
         corresponding string.
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = x + x**2*y**3
         >>> p1 = p.integrate('x')
         >>> str(p1)
@@ -1713,9 +1713,9 @@ class Poly(dict):
         with K >= (n+1)/J
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> c = [1, 3, 5, 7]
         >>> p1 = (x+y).series_from_list(c, 'x', 3)
         >>> p2 = (1 + 3*(x+y) + 5*(x+y)**2 + 7*(x+y)**3).trunc('x', 3)
@@ -1883,9 +1883,9 @@ class Poly(dict):
         p has constant term equal to 1
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = (1 + x + x*y).sqrt('x', 3)
         >>> str(p)
         ' -1/8*x^2*y^2 -1/4*x^2*y -1/8*x^2 +1/2*x*y +1/2*x +1'
@@ -1908,9 +1908,9 @@ class Poly(dict):
         TODO: case of constant term different from 1
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x, y = lgens('x, y', QQ, O_lex)
+        >>> lp, x, y = lgens('x, y', QQ, lex)
         >>> p = (1 + x + x*y).nth_root(-3, 'x', 3)
         >>> str(p)
         ' +2/9*x^2*y^2 +4/9*x^2*y +2/9*x^2 -1/3*x*y -1/3*x +1'
@@ -1949,9 +1949,9 @@ class Poly(dict):
         """Re(acoth(p)) = 1/2*(log(1+p) - log(1-p))
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.re_acoth('x', 8)
         >>> str(p)
         ' +1/7*x^7 +1/5*x^5 +1/3*x^3 +x'
@@ -2023,9 +2023,9 @@ class Poly(dict):
         truncation integral dx p^-1*d p/dx is used.
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = (1+x).log('x', 8)
         >>> str(p)
         ' +1/7*x^7 -1/6*x^6 +1/5*x^5 -1/4*x^4 +1/3*x^3 -1/2*x^2 +x'
@@ -2087,9 +2087,9 @@ class Poly(dict):
         """
         arctangent of a series
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.atan('x', 8)
         >>> str(p)
         ' -1/7*x^7 +1/5*x^5 -1/3*x^3 +x'
@@ -2111,9 +2111,9 @@ class Poly(dict):
         principal branch of the Lambert W function
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.lambert('x', 8)
         >>> str(p)
         ' +16807/720*x^7 -54/5*x^6 +125/24*x^5 -8/3*x^4 +3/2*x^3 -x^2 +x'
@@ -2139,9 +2139,9 @@ class Poly(dict):
         arcsin of a series
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.asin('x', 8)
         >>> str(p)
         ' +5/112*x^7 +3/40*x^5 +1/6*x^3 +x'
@@ -2181,9 +2181,9 @@ class Poly(dict):
         arcsinh of a series
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.asinh('x', 8)
         >>> str(p)
         ' -5/112*x^7 +3/40*x^5 -1/6*x^3 +x'
@@ -2236,9 +2236,9 @@ class Poly(dict):
         """ hyperbolic arctangent
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.atanh('x', 8)
         >>> str(p)
         ' +1/7*x^7 +1/5*x^5 +1/3*x^3 +x'
@@ -2268,9 +2268,9 @@ class Poly(dict):
         """ hyperbolic tangent of a series
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.tanh('x', 8)
         >>> str(p)
         ' -17/315*x^7 +2/15*x^5 -1/3*x^3 +x'
@@ -2299,9 +2299,9 @@ class Poly(dict):
         """tangent of a series
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.tan('x', 8)
         >>> str(p)
         ' +17/315*x^7 +2/15*x^5 +1/3*x^3 +x'
@@ -2376,9 +2376,9 @@ class Poly(dict):
         exponential of a series
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.exp('x', 6)
         >>> str(p)
         ' +1/120*x^5 +1/24*x^4 +1/6*x^3 +1/2*x^2 +x +1'
@@ -2414,9 +2414,9 @@ class Poly(dict):
         """ sin of a series
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.sin('x', 6)
         >>> str(p)
         ' +1/120*x^5 -1/6*x^3 +x'
@@ -2457,9 +2457,9 @@ class Poly(dict):
         """ cos of a series
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.cos('x', 6)
         >>> str(p)
         ' +1/24*x^4 -1/2*x^2 +1'
@@ -2510,9 +2510,9 @@ class Poly(dict):
         """ hyperbolic sin of a series
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.sinh('x', 8)
         >>> str(p)
         ' +1/5040*x^7 +1/120*x^5 +1/6*x^3 +x'
@@ -2525,9 +2525,9 @@ class Poly(dict):
         """ cos of a series
 
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
-        >>> lp, x = lgens('x', QQ, O_lex)
+        >>> lp, x = lgens('x', QQ, lex)
         >>> p = x.cosh('x', 8)
         >>> str(p)
         ' +1/720*x^6 +1/24*x^4 +1/2*x^2 +1'
@@ -2559,10 +2559,10 @@ class Poly(dict):
     def tobasic(p, *gens):
         """Convert a Poly into a Sympy expression.
         >>> from sympy.core.numbers import Rational as QQ
-        >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+        >>> from sympy.polys.monomialtools import lex
         >>> from sympy.polys.lpoly import lgens
         >>> from sympy import Symbol
-        >>> lp, X = lgens('X', QQ, O_lex)
+        >>> lp, X = lgens('X', QQ, lex)
         >>> x = Symbol('x')
         >>> p = (1 + X)**3
         >>> str(p)
@@ -2592,10 +2592,10 @@ class LPolySubs(object):
     possibly truncated.
 
     >>> from sympy.core.numbers import Rational as QQ
-    >>> from sympy.polys.monomialtools import monomial_lex_key as O_lex
+    >>> from sympy.polys.monomialtools import lex
     >>> from sympy.polys.lpoly import lgens
     >>> from sympy.polys.lpoly import LPolySubs
-    >>> lp, x, y = lgens('x, y', QQ, O_lex)
+    >>> lp, x, y = lgens('x, y', QQ, lex)
     >>> sb = LPolySubs(lp, lp, {'y':y+1})
     >>> p1 = sb.subs((x + y)**2)
     >>> str(p1)

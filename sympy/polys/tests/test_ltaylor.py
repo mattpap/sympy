@@ -9,11 +9,10 @@ from sympy.series.order import O
 from sympy.series.series import series
 from sympy.core.numbers import (Rational,E,Integer)
 from sympy.core.symbol import Symbol
-from sympy import (Symbol, I, Rational,E,Integer,PoleError,floor,ceiling, Piecewise, Eq, sign, symbols, limit, Derivative)
+from sympy import (I, PoleError,floor,ceiling, Piecewise, Eq, sign, symbols, limit, Derivative)
 from sympy.core import pi
 from sympy.abc import x, y
 from sympy.utilities.pytest import raises
-from sympy.polys.monomialtools import monomial_lex_key as O_lex
 
 one = Rational(1)
 def test_taylor_QQ1():
