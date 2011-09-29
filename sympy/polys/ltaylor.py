@@ -6,11 +6,8 @@ from sympy.polys.monomialtools import lex
 from sympy.functions.elementary.trigonometric import (cos, sin, tan, asin, atan, acos, acot)
 from sympy.functions.elementary.exponential import (exp, log, LambertW)
 from sympy.functions.elementary.hyperbolic import (sinh, cosh, tanh, atanh, asinh, acosh, acoth)
-from sympy.core.numbers import (Number, Rational, Integer)
+from sympy.core.numbers import Number, Rational
 from sympy.core import pi
-from sympy.core.add import Add
-from sympy.core.mul import Mul
-from sympy.core.power import Pow
 from sympy import I
 from sympy.core.sympify import sympify
 
@@ -29,7 +26,7 @@ def _is_monomial(p, var):
     # p = -x -> (-1, 1)
     # p = log(2)*3*x**5  -> (log(2)*3, 5)
     # p = 2              -> (2, 0)
-    if p.__class__ == Mul:
+    if p.is_Mul:
         num_terms_with_var = 0
         n = 0
         c = 1
@@ -40,7 +37,7 @@ def _is_monomial(p, var):
                     return None
                 if q == var:
                     n = 1
-                elif q.__class__ == Pow:
+                elif q.is_Pow:
                     if q.args[0] != var:
                         return None
                     if q.args[1].is_real and q.args[1].is_number:
@@ -53,7 +50,7 @@ def _is_monomial(p, var):
                 c = c*q
         return (n, c)
     # x**3 -> (1, 3)
-    if p.__class__ == Pow:
+    if p.is_Pow:
         if p.args[0] != var:
             return None
         if p.args[1].is_real:
@@ -64,7 +61,7 @@ def _is_monomial(p, var):
 
 def _split_constant_part(p, var):
     c = 1
-    if p.__class__ == Mul:
+    if p.is_Mul:
         p1 = 1
         for q in p.args:
             if var not in q.atoms():
@@ -79,12 +76,12 @@ def _get_var_from_term(p, var):
     """factor the negative power of var from a term
     e.g.  x**-4*sin(x)*cos(x) -> (-4, sin(x)*cos(x))
     """
-    if p.__class__ == Mul:
+    if p.is_Mul:
         pw = 0
         rest = 1
         for q in p.args:
             if var in q.atoms():
-                if q.__class__ == Pow:
+                if q.is_Pow:
                     qb, qp = q.args
                     if qb == var:
                         if qp.is_integer and qp.is_negative:
@@ -98,7 +95,7 @@ def _get_var_from_term(p, var):
             else:
                 rest *= q
         return (pw, rest)
-    elif p.__class__ == Pow:
+    elif p.is_Pow:
         if p.args[0] == var:
             n = p.args[1]
             if n.is_integer and n.is_negative:
@@ -128,7 +125,7 @@ def _factor_var(q, var):
     >>> _factor_var(p, x)
     (-2, 2*x**2 + x)
     """
-    if q.__class__ != Add:
+    if not q.is_Add:
         return (0, q)
     a = []
     num = sympify(1)
@@ -284,7 +281,7 @@ def taylor(p, var=None, start=0, prec=6, dir="+", pol_pars=[]):
     # taylor(p1+p2, ...) = taylor(p1, ...) + taylor(p2, ...)
     # in the case in which p2=O(x**prec1), if prec1 < prec
     # series gives a value error
-    if p.__class__ == Add:
+    if p.is_Add:
         addends = []
         orders = []
         # consider first the Order; in case the order is less than
@@ -344,7 +341,7 @@ def taylor(p, var=None, start=0, prec=6, dir="+", pol_pars=[]):
             return c*var
         else:
             return O(var**prec)
-    if p.__class__ == Pow:
+    if p.is_Pow:
         if p.args[0] == var and var not in p.args[1].atoms():
             n = p.args[1]
             if n.is_number:
@@ -373,14 +370,14 @@ def taylor(p, var=None, start=0, prec=6, dir="+", pol_pars=[]):
 def taylor_term(p, var, tev, typ=0, start=0, prec=6, dir="+", pol_pars=[]):
     """taylor expansion of a single term p
     tev = (TaylorEval(gens, lpq), TaylorEval(gens, lps))
-    p.__class__ != Add
-    if p.__class__ == Mul, p.args does not have terms independent of var
+    not p.is_Add
+    if p.is_Mul, p.args does not have terms independent of var
     e.g. p = sin(x)*cos(x)/x
          p = (1+x)**2
     return (p1, order)
     """
 
-    if p.__class__ == Pow:
+    if p.is_Pow:
         # x**a, where a is not real number, e.g. x**I, x**x, x**y
         n = p.args[1]
         if p.args[0] == var:
@@ -439,9 +436,9 @@ def taylor_term(p, var, tev, typ=0, start=0, prec=6, dir="+", pol_pars=[]):
             return p2 , O(var**prec)
 
 
-    if p.__class__ == Mul:
+    if p.is_Mul:
         # product of terms depending on var
-        # p.__class__ == Mul and each of p.args depends on var
+        # p.is_Mul and each of p.args depends on var
         # collect positive and negative powers of the product
         # num = product of the positive powers
         # collect the negative powers in a list
@@ -462,7 +459,7 @@ def taylor_term(p, var, tev, typ=0, start=0, prec=6, dir="+", pol_pars=[]):
         for q in args:
             # case q = sin(x)**2  :  num = num*sin(x)**2
             # case q = sin(x)**-2 :  denv.append(sin(x)**2); n0v.append(4)
-            if q.__class__ == Pow:
+            if q.is_Pow:
                 qargs = q.args
                 n = qargs[1]
                 if n.is_integer:
@@ -487,7 +484,7 @@ def taylor_term(p, var, tev, typ=0, start=0, prec=6, dir="+", pol_pars=[]):
                         # term with power 0; to play save go to series
                         p1 = p.series(var, start, prec, dir)
                         return (p1.removeO(), p1.getO())
-            elif q.__class__ == Add:
+            elif q.is_Add:
                 # case (1 + 1/x**2)/cos(x) -> x**-2 * (x**2 + 1)/cos(x)
                 a = []
                 for q1 in q.args:
@@ -669,8 +666,7 @@ class TaylorEval:
         if f in self.gens:
             return self.dgens[f]
 
-        head = f.__class__
-        if head == Add:
+        if f.is_Add:
             s = self.lp(0)
             for x in f.args:
                 if self.var in x.atoms():
@@ -681,13 +677,13 @@ class TaylorEval:
                     x = self.coerce_number(x)
                 s += x
             return s
-        if head == Mul:
+        if f.is_Mul:
             s = self.lp(1)
             # sin(x)*cos(x)/x
             pw = 0
             rest = []
             for q in f.args:
-                if q.__class__ == Pow:
+                if q.is_Pow:
                     qb, qp = q.args
                     if qb == self.var:
                         if qp.is_integer:
@@ -715,7 +711,7 @@ class TaylorEval:
                 s = s*self.lvar**-pw
 
             return s
-        if head == Pow:
+        if f.is_Pow:
             args = f.args
             pw = args[1]
             # f = q*pw(x) = exp(pw(x)*log(q))
@@ -733,7 +729,7 @@ class TaylorEval:
                     x = self.lvar
                 else:
                     x = self(x, prec)
-                if pw.__class__ == Integer:
+                if pw.is_Integer:
                     pw = int(pw)
                     x1 = x.pow_trunc(pw, self.lvname, prec)
                 else:
@@ -746,58 +742,58 @@ class TaylorEval:
                         raise NotImplementedError
                 return x1
             raise NotImplementedError
-        if head == cos:
+        if isinstance(f, cos):
             q = ev_args(self, f.args, prec)
             return q.cos(self.lvname, prec)
-        if head == sin:
+        if isinstance(f, sin):
             q = ev_args(self, f.args, prec)
             return q.sin(self.lvname, prec)
-        if head == exp:
+        if isinstance(f, exp):
             q = ev_args(self, f.args, prec)
             return q.exp(self.lvname, prec)
-        if head == log:
+        if isinstance(f, log):
             q = ev_args(self, f.args, prec)
             return q.log(self.lvname, prec)
-        if head == atan:
+        if isinstance(f, atan):
             q = ev_args(self, f.args, prec)
             return q.atan(self.lvname, prec)
-        if head == tan:
+        if isinstance(f, tan):
             q = ev_args(self, f.args, prec)
             return q.tan(self.lvname, prec)
-        if head == cosh:
+        if isinstance(f, cosh):
             q = ev_args(self, f.args, prec)
             return q.cosh(self.lvname, prec)
-        if head == sinh:
+        if isinstance(f, sinh):
             q = ev_args(self, f.args, prec)
             return q.sinh(self.lvname, prec)
-        if head == tanh:
+        if isinstance(f, tanh):
             q = ev_args(self, f.args, prec)
             return q.tanh(self.lvname, prec)
-        if head == atanh:
+        if isinstance(f, atanh):
             q = ev_args(self, f.args, prec)
             return q.atanh(self.lvname, prec)
-        if head == asin:
+        if isinstance(f, asin):
             q = ev_args(self, f.args, prec)
             return q.asin(self.lvname, prec)
-        if head == asinh:
+        if isinstance(f, asinh):
             q = ev_args(self, f.args, prec)
             return q.asinh(self.lvname, prec)
-        if head == acos:
+        if isinstance(f, acos):
             if not self.lp.SR:
                 raise TaylorEvalError
             q = ev_args(self, f.args, prec)
             return pi/2 - q.asin(self.lvname, prec)
-        if head == acosh:
+        if isinstance(f, acosh):
             if not self.lp.SR:
                 raise TaylorEvalError
             q = ev_args(self, f.args, prec)
             return I*pi/2 - I*q.asin(self.lvname, prec)
-        if head == acot:
+        if isinstance(f, acot):
             if not self.lp.SR:
                 raise TaylorEvalError
             q = ev_args(self, f.args, prec)
             return pi/2 + q.acot1(self.lvname, prec)
-        if head == acoth:
+        if isinstance(f, acoth):
             # see issue 564
             # sage gives taylor(acoth(x), x, 0, 9)
             # -1/2*I*pi + 1/9*x^9 + 1/7*x^7 + 1/5*x^5 + 1/3*x^3 + x
@@ -809,7 +805,7 @@ class TaylorEval:
             if q == 0:
                 return arcoth(0)
             return I*pi/2 + q.re_acoth(self.lvname, prec)
-        if head == LambertW:
+        if isinstance(f, LambertW):
             q = ev_args(self, f.args, prec)
             return q.lambert(self.lvname, prec)
         raise NotImplementedError('case in __call__ not considered f=%s' % f)
