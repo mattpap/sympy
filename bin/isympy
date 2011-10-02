@@ -59,8 +59,28 @@ sympy_dir   = os.path.join(sympy_top, 'sympy')
 if os.path.isdir(sympy_dir):
     sys.path.insert(0, sympy_top)
 
+def load_config_file():
+    conf_file = os.path.expanduser('~/.sympy/isympy.conf')
+
+    if os.path.exists(conf_file):
+        config = {}
+
+        with open(conf_file) as f:
+            try:
+                exec f.read() in config
+            except (SystemExit, KeyboardInterrupt):
+                raise
+            except:
+                pass
+            else:
+                return config
+
+    return {}
+
 def main():
     from optparse import OptionParser
+
+    config = load_config_file()
 
     usage = 'usage: isympy [options] -- [ipython options]'
     parser = OptionParser(usage)
@@ -69,7 +89,7 @@ def main():
         '-c', '--console',
         dest='console',
         action='store',
-        default=None,
+        default=config.get('console', None),
         choices=['ipython', 'python'],
         help='select type of interactive session: ipython | python')
 
@@ -77,7 +97,7 @@ def main():
         '-p', '--pretty',
         dest='pretty',
         action='store',
-        default=None,
+        default=config.get('pretty', None),
         choices=['unicode', 'ascii', 'no'],
         help='setup pretty printing: unicode | ascii | no')
 
@@ -85,7 +105,7 @@ def main():
         '-t', '--types',
         dest='types',
         action='store',
-        default=None,
+        default=config.get('types', None),
         choices=['gmpy', 'python', 'sympy'],
         help='setup ground types: gmpy | python | sympy')
 
@@ -93,7 +113,7 @@ def main():
         '-o', '--order',
         dest='order',
         action='store',
-        default=None,
+        default=config.get('order', None),
         choices=['lex', 'grlex', 'grevlex', 'rev-lex', 'rev-grlex', 'rev-grevlex', 'old', 'none'],
         help='setup ordering of terms: [rev-]lex | [rev-]grlex | [rev-]grevlex | old | none')
 
@@ -101,24 +121,24 @@ def main():
         '-q', '--quiet',
         dest='quiet',
         action='store_true',
-        default=False,
+        default=config.get('quiet', False),
         help='print only version information at startup')
 
     parser.add_option(
         '-d', '--doctest',
         dest='doctest',
         action='store_true',
-        default=False,
+        default=config.get('doctest', False),
         help='use the doctest format for output (you can just copy and paste it)')
 
     parser.add_option(
         '-C', '--no-cache',
         dest='cache',
         action='store_false',
-        default=True,
+        default=config.get('cache', True),
         help='disable caching mechanism')
 
-    (options, ipy_args) = parser.parse_args()
+    options, ipy_args = parser.parse_args()
 
     if not options.cache:
         os.environ['SYMPY_USE_CACHE'] = 'no'
