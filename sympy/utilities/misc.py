@@ -46,17 +46,18 @@ def default_sort_key(item):
 
     if isinstance(item, Basic):
         return item.sort_key()
-    elif iterable(item, exclude=basestring):
+
+    if iterable(item, exclude=basestring):
         if isinstance(item, dict):
             args = map(Tuple, item.items())
         else:
             args = list(item)
 
         args = len(args), tuple(map(default_sort_key, args))
-
-        return (10, 0, item.__class__.__name__), args, S.One.sort_key(), S.One
     else:
-        raise ValueError("can't compute default sort key for '%s'" % item)
+        args = 1, item
+
+    return (10, 0, item.__class__.__name__), args, S.One.sort_key(), S.One
 
 import sys
 size = getattr(sys, "maxint", None)
