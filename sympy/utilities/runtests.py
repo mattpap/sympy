@@ -25,16 +25,9 @@ from doctest import DocTestFinder, DocTestRunner
 import re as pre
 import random
 import subprocess
-
-from sympy.core.cache import clear_cache
-
 import codecs
 
-# Manually load 'iterables' module, passing out sympy
-import imp
-fn_iterables  = os.path.join(os.path.dirname(__file__), "iterables.py")
-iterables = imp.load_source("iterables", fn_iterables)
-any, all = iterables.any, iterables.all
+from sympy.core.cache import clear_cache
 
 # Use sys.stdout encoding for ouput.
 # This was only added to Python's doctest in Python 2.6, so we must duplicate
@@ -1023,7 +1016,7 @@ def wikitest(*paths, **kwargs):
     for against in againstlist:
         t.set_against_dir(against, kwargs["%s_dir" % against])
         t.load_sympy_version()
-        t.setup_pprint()
+        setup_pprint()
 
         test_files = t.get_test_files(wiki_dir, pat=r"^.*\.(md|rest|mediawiki)$",init_only=False)
         not_blacklisted = [f for f in test_files
@@ -1166,72 +1159,6 @@ class SymPyWikiTests(object):
             if len(_key.split("sympy")) > 1:
                 del sys.modules[_key]
         sys.path.insert(0, self.against_dir)
-
-    def setup_pprint(self):
-        try:
-            # master version
-            from sympy import pprint_use_unicode, init_printing
-
-            # force pprint to be in ascii mode in doctests
-            pprint_use_unicode(False)
-
-            # hook our nice, hash-stable strprinter
-            init_printing(pretty_print=False)
-
-        except ImportError:
-            # version 0.6.7
-            from sympy.interactive import pprint_use_unicode, pretty, sstrrepr
-
-            # force pprint to be in ascii mode in doctests
-            pprint_use_unicode(False)
-
-            # use new version of init_printing
-            pretty_print = False
-            order=None
-            use_unicode=None
-
-            if pretty_print:
-                stringify_func = lambda arg: pretty(arg, order=order, use_unicode=use_unicode)
-            else:
-                stringify_func = sstrrepr
-
-            try:
-                import IPython
-                ip = IPython.ipapi.get()
-                if ip is not None:
-                    def result_display(self, arg):
-                        """IPython's pretty-printer display hook.
-
-                           This function was adapted from:
-
-                            ipython/IPython/hooks.py:155
-
-                        """
-                        if self.rc.pprint:
-                            out = stringify_func(arg)
-                            if '\n' in out:
-                                print
-                            print out
-                        else:
-                            print repr(arg)
-                    ip.set_hook('result_display', result_display)
-                    return
-            except ImportError:
-                pass
-            import __builtin__, sys
-            def displayhook(arg):
-                """Python's pretty-printer display hook.
-
-                   This function was adapted from:
-
-                    http://www.python.org/dev/peps/pep-0217/
-
-                """
-                if arg is not None:
-                    __builtin__._ = None
-                    print stringify_func(arg)
-                    __builtin__._ = arg
-            sys.displayhook = displayhook
 
 class WikiTestParser(pdoctest.DocTestParser):
     """
@@ -1614,4 +1541,3 @@ class PyTestReporter(Reporter):
         self.write("\n")
 
 sympy_dir = get_sympy_dir()
-
