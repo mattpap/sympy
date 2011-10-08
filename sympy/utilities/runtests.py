@@ -1062,14 +1062,14 @@ def wikitest(*paths, **kwargs):
                 if first_report:
                     first_report = False
                     msg = 'txt wikitest start (against "%s")' % against
-                    lhead = '='*((80 - len(msg))//2 - 1)
-                    rhead = '='*(79 - len(msg) - len(lhead) - 1)
+                    lhead = '='*((r.terminal_width - len(msg))//2 - 1)
+                    rhead = '='*(r.terminal_width - 1 - len(msg) - len(lhead) - 1)
                     print ' '.join([lhead, msg, rhead])
                     print
                 # use as the id, everything past the first 'sympy'
                 file_id = txt_file[txt_file.find('sympy') + len('sympy') + 1:]
                 print file_id, # get at least the name out so it is know who is being tested
-                wid = 80 - len(file_id) - 1 #update width
+                wid = r.terminal_width - len(file_id) - 1 # update width
                 test_file = '[%s]' % (tested)
                 report = '[%s]' % (txtfailed or 'OK')
                 print ''.join([test_file,' '*(wid-len(test_file)-len(report)), report])
