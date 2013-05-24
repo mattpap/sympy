@@ -19,7 +19,7 @@ from sympy.logic.boolalg import And
 from sympy.solvers.solvers import solve, denoms
 from sympy.utilities.iterables import uniq
 
-from sympy.polys import quo, gcd, lcm, factor, cancel, PolynomialError
+from sympy.polys import quo, gcd, lcm, factor_list, cancel, PolynomialError
 from sympy.polys.monomials import itermonomials
 from sympy.polys.polyroots import root_factors
 
@@ -464,29 +464,15 @@ def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
     reducibles = set()
 
     for poly in polys:
-        if poly.has(*V):
-            try:
-                factorization = factor(poly, greedy=True)
-            except PolynomialError:
-                factorization = poly
-            factorization = poly
+        _, factors = factor_list(poly)
+        reducibles |= set([ reducible for reducible, _ in factors ])
 
-            if factorization.is_Mul:
-                reducibles |= set(factorization.args)
-            else:
-                reducibles.add(factorization)
-
-    def _integrate(field=None):
+    def _integrate(extension=None):
         irreducibles = set()
 
-        for poly in reducibles:
-            for z in poly.atoms(Symbol):
-                if z in V:
-                    break
-            else:
-                continue
-
-            irreducibles |= set(root_factors(poly, z, filter=field))
+        for reducible in reducibles:
+            _, factors = factor_list(reducible, extension=extension)
+            irreducibles |= set([ irreducible for irreducible, _ in factors ])
 
         log_coeffs, log_part = [], []
         B = _symbols('B', len(irreducibles))
@@ -548,13 +534,10 @@ def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
             solution = [ (k.as_expr(), v.as_expr()) for k, v in solution.iteritems() ]
             return candidate.subs(solution).subs(zip(coeffs, [S.Zero]*len(coeffs)))
 
-    if not (F.atoms(Symbol) - set(V)):
-        solution = _integrate('Q')
+    solution = _integrate()
 
-        if solution is None:
-            solution = _integrate()
-    else:
-        solution = _integrate()
+    if solution is None:
+        solution = _integrate(I)
 
     if solution is not None:
         antideriv = solution.subs(rev_mapping)

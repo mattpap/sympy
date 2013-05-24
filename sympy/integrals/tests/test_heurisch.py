@@ -137,7 +137,12 @@ def test_heurisch_symbolic_coeffs():
     assert simplify(diff(heurisch(log(x + y + z), y), y)) == log(x + y + z)
 
 
+@XFAIL
 def test_heurisch_symbolic_coeffs_1130():
+    # TODO: this used to work, but only because of very bad implementation decision
+    # to use root_factors(). Those tests should work once again when support for
+    # algebraic function fields is added.
+
     y = Symbol('y')
     assert heurisch_wrapper(1/(x**2 + y), x) == Piecewise(
         (-1/x, Eq(y, 0)),
@@ -184,21 +189,26 @@ def test_heurisch_function_derivative():
     assert heurisch(df/f(x), x) == log(f(x))
 
 def test_heurisch_wrapper():
-    f = 1/(y + x)
+    f = 1/(x + y)
     assert heurisch_wrapper(f, x) == log(x + y)
-    f = 1/(y - x)
-    assert heurisch_wrapper(f, x) == -log(x - y)
-    f = 1/((y - x)*(y + x))
+
+    f = 1/(-x + y)
+    assert heurisch_wrapper(f, x) == -log(-x + y)
+
+    f = 1/((-x + y)*(x + y))
     assert heurisch_wrapper(f, x) == \
-        Piecewise((1/x, Eq(y, 0)), (log(x + y)/2/y - log(x - y)/2/y, True))
+        Piecewise((1/x, Eq(y, 0)),
+                  (-log(-x + y)/2/y + log(x + y)/2/y, True))
+
     # issue 3827
-    f = sqrt(x**2/((y - x)*(y + x)))
-    assert heurisch_wrapper(f, x) == x*sqrt(x**2)*sqrt(1/(-x**2 + y**2)) \
+    f = sqrt(x**2/((-x + y)*(x + y)))
+    assert heurisch_wrapper(f, x) == \
+          x   *sqrt(x**2)*sqrt(1/(-x**2 + y**2))   \
         - y**2*sqrt(x**2)*sqrt(1/(-x**2 + y**2))/x
 
 def test_issue510():
-    assert heurisch(1/(x * (1 + log(x)**2)), x) == I*log(log(x) + I)/2 - \
-        I*log(log(x) - I)/2
+    assert heurisch(1/(x * (1 + log(x)**2)), x) == \
+        I*log(log(x) + I)/2 - I*log(log(x) - I)/2
 
 ### These are examples from the Poor Man's Integrator
 ### http://www-sop.inria.fr/cafe/Manuel.Bronstein/pmint/examples/
@@ -227,10 +237,7 @@ def test_pmint_trig():
 @slow # 8 seconds on 3.4 GHz
 def test_pmint_logexp():
     f = (1 + x + x*exp(x))*(x + log(x) + exp(x) - 1)/(x + log(x) + exp(x))**2/x
-    g = log(x**2 + 2*x*exp(x) + 2*x*log(x) + exp(2*x) + 2*exp(x)*log(x) + log(x)**2)/2 + 1/(x + exp(x) + log(x))
-
-    # TODO: Optimal solution is g = 1/(x + log(x) + exp(x)) + log(x + log(x) + exp(x)),
-    # but SymPy requires a lot of guidance to properly simplify heurisch() output.
+    g = 1/(x + log(x) + exp(x)) + log(x + log(x) + exp(x))
 
     assert ratsimp(heurisch(f, x)) == g
 
@@ -239,7 +246,9 @@ def test_pmint_erf():
     f = exp(-x**2)*erf(x)/(erf(x)**3 - erf(x)**2 - erf(x) + 1)
     g = sqrt(pi)*log(erf(x) - 1)/8 - sqrt(pi)*log(erf(x) + 1)/8 - sqrt(pi)/(4*erf(x) - 4)
 
-    assert ratsimp(heurisch(f, x)) == g
+    # TODO: there is indeterminism somewhere in heurisch(). In this case it sometimes
+    # gives g on output and sometimes g - const. Investigate why this happens.
+    assert ratsimp(heurisch(f, x)) in [g, g - sqrt(pi)/4]
 
 def test_pmint_LambertW():
     f = LambertW(x)
