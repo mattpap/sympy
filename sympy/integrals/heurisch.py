@@ -92,8 +92,7 @@ def _symbols(name, n):
     return lsyms[:n]
 
 
-def heurisch_wrapper(f, x, rewrite=False, hints=None, mappings=None, retries=3,
-                     degree_offset=0, unnecessary_permutations=None):
+def heurisch_wrapper(f, x, rewrite=False, hints=None, degree_offset=0):
     """
     A wrapper around the heurisch integration algorithm.
 
@@ -122,8 +121,7 @@ def heurisch_wrapper(f, x, rewrite=False, hints=None, mappings=None, retries=3,
     if x not in f.free_symbols:
         return f*x
 
-    res = heurisch(f, x, rewrite, hints, mappings, retries, degree_offset,
-                   unnecessary_permutations)
+    res = heurisch(f, x, rewrite, hints, degree_offset)
     if not isinstance(res, Basic):
         return res
     # We consider each denominator in the expression, and try to find
@@ -156,12 +154,10 @@ def heurisch_wrapper(f, x, rewrite=False, hints=None, mappings=None, retries=3,
     # For each case listed in the list slns, we reevaluate the integral.
     pairs = []
     for sub_dict in slns:
-        expr = heurisch(f.subs(sub_dict), x, rewrite, hints, mappings, retries,
-                        degree_offset, unnecessary_permutations)
+        expr = heurisch(f.subs(sub_dict), x, rewrite, hints, degree_offset)
         cond = And(*[Eq(key, value) for key, value in sub_dict.iteritems()])
         pairs.append((expr, cond))
-    pairs.append((heurisch(f, x, rewrite, hints, mappings, retries,
-                           degree_offset, unnecessary_permutations), True))
+    pairs.append((heurisch(f, x, rewrite, hints, degree_offset), True))
     return Piecewise(*pairs)
 
 def heurisch_apply_hints(hints, terms, x):
@@ -220,8 +216,7 @@ def heurisch_apply_hints(hints, terms, x):
         else:
             terms |= set(hints)
 
-def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
-             degree_offset=0, unnecessary_permutations=None):
+def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
     """
     Compute indefinite integral using heuristic Risch algorithm.
 
@@ -326,47 +321,30 @@ def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
     for g in set(terms):
         terms |= components(cancel(g.diff(x)), x)
 
-    # TODO: caching is significant factor for why permutations work at all. Change this.
     V = _symbols('x', len(terms))
 
     mapping = dict(zip(terms, V))
-
     rev_mapping = {}
 
-    if unnecessary_permutations is None:
-        unnecessary_permutations = []
     for k, v in mapping.iteritems():
         rev_mapping[v] = k
 
-    if mappings is None:
-        # Pre-sort mapping in order of largest to smallest expressions (last is always x).
-        def _sort_key(arg):
-            return arg[0].as_independent(x)[1].count_ops()
-        #optimizing the number of permutations of mappping
-        unnecessary_permutations = [(x, mapping[x])]
-        del mapping[x]
-        mapping = sorted(mapping.items(), key=_sort_key, reverse=True)
-        mappings = permutations(mapping)
+    # Pre-sort mapping in order of largest to smallest expressions (last is always x).
+    def _sort_key(arg):
+        return arg[0].as_independent(x)[1].count_ops()
+
+    mapping = sorted(mapping.items(), key=_sort_key, reverse=True)
 
     def _substitute(expr):
         return expr.subs(mapping)
 
-    for mapping in mappings:
-        mapping = list(mapping)
-        mapping = mapping + unnecessary_permutations
-        diffs = [ _substitute(cancel(g.diff(x))) for g in terms ]
-        denoms = [ g.as_numer_denom()[1] for g in diffs ]
-        if all(h.is_polynomial(*V) for h in denoms) and _substitute(f).is_rational_function(*V):
-            denom = reduce(lambda p, q: lcm(p, q, *V), denoms)
-            break
-    else:
-        if not rewrite:
-            result = heurisch(f, x, rewrite=True, hints=hints, unnecessary_permutations=unnecessary_permutations)
+    diffs = [ _substitute(cancel(g.diff(x))) for g in terms ]
+    denoms = [ g.as_numer_denom()[1] for g in diffs ]
 
-            if result is not None:
-                return indep*result
+    if not (all(h.is_polynomial(*V) for h in denoms) and _substitute(f).is_rational_function(*V)):
         return None
 
+    denom = reduce(lambda p, q: lcm(p, q, *V), denoms)
     numers = [ cancel(denom*g) for g in diffs ]
 
     def _derivation(h):
@@ -544,17 +522,17 @@ def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
 
     if solution is not None:
         antideriv = solution.subs(rev_mapping)
-        antideriv = cancel(antideriv).expand(force=True)
+        result = cancel(antideriv).expand(force=True)
 
-        if antideriv.is_Add:
-            antideriv = antideriv.as_independent(x)[1]
+        # Remove constant term canonically.
+        if result.is_Add:
+            result = result.as_independent(x)[1]
 
-        return indep*antideriv
-    else:
-        if retries >= 0:
-            result = heurisch(f, x, mappings=mappings, rewrite=rewrite, hints=hints, retries=retries - 1, unnecessary_permutations=unnecessary_permutations)
+        return indep*result
+    elif not rewrite:
+        result = heurisch(f, x, rewrite=True, hints=hints)
 
-            if result is not None:
-                return indep*result
+        if result is not None:
+            return indep*result
 
-        return None
+    return None
