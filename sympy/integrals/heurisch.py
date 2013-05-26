@@ -164,6 +164,61 @@ def heurisch_wrapper(f, x, rewrite=False, hints=None, mappings=None, retries=3,
                            degree_offset, unnecessary_permutations), True))
     return Piecewise(*pairs)
 
+def heurisch_apply_hints(hints, terms, x):
+    """Extend heurisch()'s ``terms`` with "smart" guesses that widen integration domain. """
+    if hints is not None:
+        if not hints:
+            a = Wild('a', exclude=[x])
+            b = Wild('b', exclude=[x])
+            c = Wild('c', exclude=[x])
+
+            for g in set(terms):
+                if g.is_Function:
+                    if g.func is exp:
+                        M = g.args[0].match(a*x**2)
+
+                        if M is not None:
+                            terms.add(erf(sqrt(-M[a])*x))
+
+                        M = g.args[0].match(a*x**2 + b*x + c)
+
+                        if M is not None:
+                            if M[a].is_positive:
+                                terms.add(sqrt(pi/4*(-M[a]))*exp(M[c] - M[b]**2/(4*M[a]))*
+                                          erf(-sqrt(-M[a])*x + M[b]/(2*sqrt(-M[a]))))
+                            elif M[a].is_negative:
+                                terms.add(sqrt(pi/4*(-M[a]))*exp(M[c] - M[b]**2/(4*M[a]))*
+                                          erf(sqrt(-M[a])*x - M[b]/(2*sqrt(-M[a]))))
+
+                        M = g.args[0].match(a*log(x)**2)
+
+                        if M is not None:
+                            if M[a].is_positive:
+                                terms.add(-I*erf(I*(sqrt(M[a])*log(x) + 1/(2*sqrt(M[a])))))
+                            if M[a].is_negative:
+                                terms.add(erf(sqrt(-M[a])*log(x) - 1/(2*sqrt(-M[a]))))
+
+                elif g.is_Pow:
+                    if g.exp.is_Rational and g.exp.q == 2:
+                        M = g.base.match(a*x**2 + b)
+
+                        if M is not None and M[b].is_positive:
+                            if M[a].is_positive:
+                                terms.add(asinh(sqrt(M[a]/M[b])*x))
+                            elif M[a].is_negative:
+                                terms.add(asin(sqrt(-M[a]/M[b])*x))
+
+                        M = g.base.match(a*x**2 - b)
+
+                        if M is not None and M[b].is_positive:
+                            if M[a].is_positive:
+                                terms.add(acosh(sqrt(M[a]/M[b])*x))
+                            elif M[a].is_negative:
+                                terms.add((-M[b]/2*sqrt(-M[a])*
+                                           atan(sqrt(-M[a])*x/sqrt(M[a]*x**2 - M[b]))))
+
+        else:
+            terms |= set(hints)
 
 def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
              degree_offset=0, unnecessary_permutations=None):
@@ -266,60 +321,7 @@ def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
             rewrite = True
 
     terms = components(f, x)
-
-    if hints is not None:
-        if not hints:
-            a = Wild('a', exclude=[x])
-            b = Wild('b', exclude=[x])
-            c = Wild('c', exclude=[x])
-
-            for g in set(terms):
-                if g.is_Function:
-                    if g.func is exp:
-                        M = g.args[0].match(a*x**2)
-
-                        if M is not None:
-                            terms.add(erf(sqrt(-M[a])*x))
-
-                        M = g.args[0].match(a*x**2 + b*x + c)
-
-                        if M is not None:
-                            if M[a].is_positive:
-                                terms.add(sqrt(pi/4*(-M[a]))*exp(M[c] - M[b]**2/(4*M[a]))*
-                                          erf(-sqrt(-M[a])*x + M[b]/(2*sqrt(-M[a]))))
-                            elif M[a].is_negative:
-                                terms.add(sqrt(pi/4*(-M[a]))*exp(M[c] - M[b]**2/(4*M[a]))*
-                                          erf(sqrt(-M[a])*x - M[b]/(2*sqrt(-M[a]))))
-
-                        M = g.args[0].match(a*log(x)**2)
-
-                        if M is not None:
-                            if M[a].is_positive:
-                                terms.add(-I*erf(I*(sqrt(M[a])*log(x) + 1/(2*sqrt(M[a])))))
-                            if M[a].is_negative:
-                                terms.add(erf(sqrt(-M[a])*log(x) - 1/(2*sqrt(-M[a]))))
-
-                elif g.is_Pow:
-                    if g.exp.is_Rational and g.exp.q == 2:
-                        M = g.base.match(a*x**2 + b)
-
-                        if M is not None and M[b].is_positive:
-                            if M[a].is_positive:
-                                terms.add(asinh(sqrt(M[a]/M[b])*x))
-                            elif M[a].is_negative:
-                                terms.add(asin(sqrt(-M[a]/M[b])*x))
-
-                        M = g.base.match(a*x**2 - b)
-
-                        if M is not None and M[b].is_positive:
-                            if M[a].is_positive:
-                                terms.add(acosh(sqrt(M[a]/M[b])*x))
-                            elif M[a].is_negative:
-                                terms.add((-M[b]/2*sqrt(-M[a])*
-                                           atan(sqrt(-M[a])*x/sqrt(M[a]*x**2 - M[b]))))
-
-        else:
-            terms |= set(hints)
+    heurisch_apply_hints(hints, terms, x)
 
     for g in set(terms):
         terms |= components(cancel(g.diff(x)), x)
