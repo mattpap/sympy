@@ -341,7 +341,7 @@ def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
     if mappings is None:
         # Pre-sort mapping in order of largest to smallest expressions (last is always x).
         def _sort_key(arg):
-            return default_sort_key(arg[0].as_independent(x)[1])
+            return arg[0].as_independent(x)[1].count_ops()
         #optimizing the number of permutations of mappping
         unnecessary_permutations = [(x, mapping[x])]
         del mapping[x]
@@ -368,6 +368,7 @@ def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
         return None
 
     numers = [ cancel(denom*g) for g in diffs ]
+
     def _derivation(h):
         return Add(*[ d * h.diff(v) for d, v in zip(numers, V) ])
 
