@@ -343,7 +343,7 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
     for k, v in mapping.iteritems():
         rev_mapping[v] = k
 
-    # Pre-sort mapping in order of largest to smallest expressions (last is always x).
+    # Sort mapping in order of largest to smallest expressions (last is always x).
     def _sort_key(arg):
         return arg[0].as_independent(x)[1].count_ops()
 
@@ -445,16 +445,15 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
             return 1
 
     A, B = _exponent(f), a + max(b, c)
+    degree = A + B + degree_offset
 
     if A > 1 and B > 1:
-        monoms = itermonomials(V, A + B - 1 + degree_offset)
-    else:
-        monoms = itermonomials(V, A + B + degree_offset)
+        degree -= 1
+
+    monoms = itermonomials(V, degree)
 
     poly_coeffs = _symbols('A', len(monoms))
-
-    poly_part = Add(*[ poly_coeffs[i]*monomial
-        for i, monomial in enumerate(monoms) ])
+    poly_part = Add(*[ coeff*monom for coeff, monom in zip(poly_coeffs, monoms) ])
 
     reducibles = set()
 
@@ -469,13 +468,8 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
             _, factors = factor_list(reducible, extension=extension)
             irreducibles |= set([ irreducible for irreducible, _ in factors ])
 
-        log_coeffs, log_part = [], []
-        B = _symbols('B', len(irreducibles))
-
-        for i, poly in enumerate(irreducibles):
-            if poly.has(*V):
-                log_coeffs.append(B[i])
-                log_part.append(log_coeffs[-1] * log(poly))
+        log_coeffs = _symbols('B', len(irreducibles))
+        log_part = Add(*[ coeff*log(irreducible) for coeff, irreducible in zip(log_coeffs, irreducibles) ])
 
         coeffs = poly_coeffs + log_coeffs
 
@@ -484,7 +478,7 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
         # give big speed improvement yet. This is because cancelation is slow
         # due to slow polynomial GCD algorithms. If this gets improved then
         # revise this code.
-        candidate = poly_part/poly_denom + Add(*log_part)
+        candidate = poly_part/poly_denom + log_part
         h = F - _derivation(candidate) / denom
         raw_numer = h.as_numer_denom()[0]
 
@@ -493,7 +487,7 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
         # sqrt(y) and similar expressions can appear, leading to non-trivial
         # domains.
         syms = set(coeffs) | set(V)
-        non_syms = set([])
+        non_syms = set()
 
         def find_non_syms(expr):
             if expr.is_Integer or expr.is_Rational:
