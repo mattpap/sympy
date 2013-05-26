@@ -292,13 +292,9 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
     components
     """
     f = sympify(f)
+
     if x not in f.free_symbols:
         return f*x
-
-    if not f.is_Add:
-        indep, f = f.as_independent(x)
-    else:
-        indep = S.One
 
     rewritables = {
         (sin, cos, cot): tan,
@@ -522,11 +518,8 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
         if result.is_Add:
             result = result.as_independent(x)[1]
 
-        return indep*result
+        return result
     elif not rewrite:
-        result = heurisch(f, x, rewrite=True, hints=hints)
-
-        if result is not None:
-            return indep*result
+        return heurisch(f, x, rewrite=True, hints=hints)
 
     return None
