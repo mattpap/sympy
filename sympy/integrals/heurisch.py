@@ -458,11 +458,17 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
         reducibles |= set([ reducible for reducible, _ in factors ])
 
     def _integrate(extension=None):
-        irreducibles = set()
+        if extension is None:
+            irreducibles = reducibles.copy()
+        else:
+            irreducibles = set()
 
-        for reducible in reducibles:
-            _, factors = factor_list(reducible, extension=extension)
-            irreducibles |= set([ irreducible for irreducible, _ in factors ])
+            for reducible in reducibles:
+                _, factors = factor_list(reducible, extension=extension)
+                irreducibles |= set([ irreducible for irreducible, _ in factors ])
+
+            if irreducibles == reducibles:
+                return None
 
         log_coeffs = _symbols('B', len(irreducibles))
         log_part = Add(*[ coeff*log(irreducible) for coeff, irreducible in zip(log_coeffs, irreducibles) ])
