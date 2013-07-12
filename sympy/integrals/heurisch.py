@@ -94,7 +94,7 @@ def _symbols(name, n):
     return lsyms[:n]
 
 
-def heurisch_wrapper(f, x, rewrite=False, hints=None, degree_offset=0):
+def heurisch_wrapper(f, x, hints=None, degree_offset=0):
     """
     A wrapper around the heurisch integration algorithm.
 
@@ -123,7 +123,7 @@ def heurisch_wrapper(f, x, rewrite=False, hints=None, degree_offset=0):
     if x not in f.free_symbols:
         return f*x
 
-    res = heurisch(f, x, rewrite, hints, degree_offset)
+    res = heurisch(f, x, hints, degree_offset)
     if not isinstance(res, Basic):
         return res
     # We consider each denominator in the expression, and try to find
@@ -156,10 +156,10 @@ def heurisch_wrapper(f, x, rewrite=False, hints=None, degree_offset=0):
     # For each case listed in the list slns, we reevaluate the integral.
     pairs = []
     for sub_dict in slns:
-        expr = heurisch(f.subs(sub_dict), x, rewrite, hints, degree_offset)
+        expr = heurisch(f.subs(sub_dict), x, hints, degree_offset)
         cond = And(*[Eq(key, value) for key, value in sub_dict.items()])
         pairs.append((expr, cond))
-    pairs.append((heurisch(f, x, rewrite, hints, degree_offset), True))
+    pairs.append((heurisch(f, x, hints, degree_offset), True))
     return Piecewise(*pairs)
 
 def heurisch_apply_hints(hints, terms, x):
@@ -230,7 +230,7 @@ def heurisch_apply_hints(hints, terms, x):
         else:
             terms |= set(hints)
 
-def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
+def heurisch(f, x, hints=None, degree_offset=0):
     """
     Compute indefinite integral using heuristic Risch algorithm.
 
@@ -255,13 +255,12 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
     Specification
     =============
 
-     heurisch(f, x, rewrite=False, hints=None)
+     heurisch(f, x, hints=None)
 
        where
          f : expression
          x : symbol
 
-         rewrite -> force rewrite 'f' in terms of 'tan' and 'tanh'
          hints   -> a list of functions that may appear in anti-derivate
 
           - hints = None          --> no suggestions at all
@@ -309,21 +308,6 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
 
     if x not in f.free_symbols:
         return f*x
-
-    rewritables = {
-        (sin, cos, cot): tan,
-        (sinh, cosh, coth): tanh,
-    }
-
-    if rewrite:
-        for candidates, rule in rewritables.items():
-            f = f.rewrite(candidates, rule)
-    else:
-        for candidates in rewritables.keys():
-            if f.has(*candidates):
-                break
-        else:
-            rewrite = True
 
     terms = components(f, x)
     heurisch_apply_hints(hints, terms, x)
@@ -530,16 +514,14 @@ def heurisch(f, x, rewrite=False, hints=None, degree_offset=0):
     if solution is None:
         solution = _integrate(I)
 
-    if solution is not None:
-        antideriv = solution.subs(rev_mapping)
-        result = cancel(antideriv).expand(force=True)
+    if solution is None:
+        return None
 
-        # Remove constant term canonically.
-        if result.is_Add:
-            result = result.as_independent(x)[1]
+    antideriv = solution.subs(rev_mapping)
+    result = cancel(antideriv).expand(force=True)
 
-        return result
-    elif not rewrite:
-        return heurisch(f, x, rewrite=True, hints=hints)
+    # Remove constant term canonically.
+    if result.is_Add:
+        result = result.as_independent(x)[1]
 
-    return None
+    return result
