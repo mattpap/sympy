@@ -68,11 +68,7 @@ Some more information how the single concepts work and who should use which:
 """
 
 from sympy import Basic, Add
-
 from sympy.core.core import BasicMeta
-
-from sympy.core.compatibility import cmp_to_key
-
 
 class Printer(object):
     """Generic printer
@@ -262,8 +258,4 @@ class Printer(object):
     def _as_ordered_terms(self, expr, order=None):
         """A compatibility function for ordering terms in Add. """
         order = order or self.order
-
-        if order == 'old':
-            return sorted(Add.make_args(expr), key=cmp_to_key(Basic._compare_pretty))
-        else:
-            return expr.as_ordered_terms(order=order)
+        return expr.as_ordered_terms(order=order)

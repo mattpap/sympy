@@ -215,9 +215,6 @@ def init_printing(pretty_print=True, order=None, use_unicode=None,
     >>> init_printing(order='grevlex') # doctest: +SKIP
     >>> str(y * x**2 + x * y**2) # doctest: +SKIP
     x**2*y + x*y**2
-    >>> init_printing(order='old') # doctest: +SKIP
-    >>> str(x**2 + y**2 + x + y) # doctest: +SKIP
-    x**2 + x + y**2 + y
     >>> init_printing(num_columns=10) # doctest: +SKIP
     >>> x**2 + x + y**2 + y # doctest: +SKIP
     x + y +
