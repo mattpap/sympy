@@ -10,7 +10,6 @@ from sympy.core.sympify import sympify
 from sympy.functions.elementary.trigonometric import cos, sin
 from sympy.functions.elementary.miscellaneous import sqrt
 from sympy.simplify import simplify as _simplify
-from sympy.utilities.exceptions import SymPyDeprecationWarning
 from sympy.utilities.misc import filldedent
 from sympy.utilities.decorator import doctest_depends_on
 
@@ -1159,24 +1158,6 @@ def rot_axis1(theta):
 ###############
 # Functions
 ###############
-
-
-def matrix_add(A, B):
-    SymPyDeprecationWarning(
-        feature="matrix_add(A, B)",
-        useinstead="A + B",
-        deprecated_since_version="0.7.2",
-    ).warn()
-    return A + B
-
-
-def matrix_multiply(A, B):
-    SymPyDeprecationWarning(
-        feature="matrix_multiply(A, B)",
-        useinstead="A*B",
-        deprecated_since_version="0.7.2",
-    ).warn()
-    return A*B
 
 
 def matrix_multiply_elementwise(A, B):
