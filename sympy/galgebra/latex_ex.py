@@ -17,7 +17,6 @@ import sympy.galgebra.GA
 #import sympy.galgebra.OGA
 import numpy
 
-from sympy.core.compatibility import cmp_to_key
 from sympy.utilities import default_sort_key
 
 from sympy.printing.latex import accepted_latex_functions
@@ -27,10 +26,6 @@ from sympy.printing.preview import preview
 def debug(txt):
     sys.stderr.write(txt + '\n')
     return
-
-
-def len_cmp(str1, str2):
-    return(len(str2) - len(str1))
 
 
 def process_equals(xstr):
@@ -131,11 +126,11 @@ class LatexPrinter(Printer):
          'varpi', 'pi', 'rho', 'varrho', 'varsigma', 'sigma', 'tau', 'upsilon',
          'varphi', 'phi', 'chi', 'psi', 'omega', 'Gamma', 'Delta', 'Theta',
          'Lambda', 'Xi', 'Pi', 'Sigma', 'Upsilon', 'Phi', 'Psi', 'Omega', 'partial',
-                         'nabla', 'eta'), key=cmp_to_key(len_cmp))
+         'nabla', 'eta'), key=lambda x: len(x))
 
     accent_keys = sorted(
         ('hat', 'check', 'dot', 'breve', 'acute', 'ddot', 'grave', 'tilde',
-         'mathring', 'bar', 'vec', 'bm', 'prm', 'abs'), key=cmp_to_key(len_cmp))
+         'mathring', 'bar', 'vec', 'bm', 'prm', 'abs'), key=lambda x: len(x))
 
     greek_cnt = 0
     greek_dict = {}

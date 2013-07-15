@@ -7,7 +7,7 @@ from sympy.core.singleton import S
 from sympy.core.operations import AssocOp
 from sympy.core.cache import cacheit
 from sympy.core.logic import fuzzy_not
-from sympy.core.compatibility import cmp_to_key
+from sympy.core.compatibility import default_sort_key
 from sympy.core.expr import Expr
 
 # internal marker to indicate:
@@ -24,10 +24,9 @@ class NC_Marker:
 
 
 # Key for sorting commutative args in canonical order
-_args_sortkey = cmp_to_key(Basic.compare)
 def _mulsort(args):
     # in-place sorting of args
-    args.sort(key=_args_sortkey)
+    args.sort(key=default_sort_key)
 
 
 def _unevaluated_Mul(*args):
