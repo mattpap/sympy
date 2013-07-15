@@ -15,7 +15,6 @@ from sympy.utilities.iterables import flatten
 from sympy.functions.elementary.miscellaneous import sqrt, Max, Min
 from sympy.printing import sstr
 from sympy.core.compatibility import callable, reduce, as_int
-from sympy.utilities.exceptions import SymPyDeprecationWarning
 
 from types import FunctionType
 
@@ -2526,8 +2525,7 @@ class MatrixBase(object):
 
         return self.adjugate() / d
 
-    def rref(self, simplified=False, iszerofunc=_iszero,
-            simplify=False):
+    def rref(self, iszerofunc=_iszero, simplify=False):
         """Return reduced row-echelon form of matrix and indices of pivot vars.
 
         To simplify elements before finding nonzero pivots set simplify=True
@@ -2545,16 +2543,7 @@ class MatrixBase(object):
         [1, 0],
         [0, 1]]), [0, 1])
         """
-        if simplified is not False:
-            SymPyDeprecationWarning(
-                feature="'simplified' as a keyword to rref",
-                useinstead="simplify=True, or set simplify equal to your "
-                "own custom simplification function",
-                issue=3382, deprecated_since_version="0.7.2",
-            ).warn()
-            simplify = simplify or True
-        simpfunc = simplify if isinstance(
-            simplify, FunctionType) else _simplify
+        simpfunc = simplify if isinstance(simplify, FunctionType) else _simplify
         # pivot: index of next row to contain a pivot
         pivot, r = 0, self.as_mutable()
         # pivotlist: indices of pivot variables (non-free)
@@ -2584,8 +2573,7 @@ class MatrixBase(object):
             pivot += 1
         return self._new(r), pivotlist
 
-    def rank(self, simplified=False, iszerofunc=_iszero,
-        simplify=False):
+    def rank(self, iszerofunc=_iszero, simplify=False):
         """
         Returns the rank of a matrix
 
@@ -2598,23 +2586,15 @@ class MatrixBase(object):
         >>> n.rank()
         2
         """
-        row_reduced = self.rref(simplified=simplified, iszerofunc=iszerofunc, simplify=simplify)
+        row_reduced = self.rref(iszerofunc=iszerofunc, simplify=simplify)
         rank = len(row_reduced[-1])
         return rank
 
-    def nullspace(self, simplified=False, simplify=False):
+    def nullspace(self, simplify=False):
         """Returns list of vectors (Matrix objects) that span nullspace of self
         """
         from sympy.matrices import zeros
 
-        if simplified is not False:
-            SymPyDeprecationWarning(
-                feature="'simplified' as a keyword to nullspace",
-                useinstead="simplify=True, or set simplify equal to your "
-                "own custom simplification function",
-                issue=3382, deprecated_since_version="0.7.2",
-            ).warn()
-            simplify = simplify or True
         simpfunc = simplify if isinstance(
             simplify, FunctionType) else _simplify
         reduced, pivots = self.rref(simplify=simpfunc)
