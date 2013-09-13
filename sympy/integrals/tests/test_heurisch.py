@@ -1,7 +1,7 @@
 from sympy import Rational, sqrt, symbols, sin, exp, log, sinh, cosh, cos, pi, \
-    I, S, erf, tan, asin, asinh, acos, acosh, Function, Derivative, diff, simplify, \
-    LambertW, Eq, Piecewise, Symbol, Add, ratsimp
-from sympy.integrals.heurisch import components, heurisch, heurisch_wrapper
+    I, S, erf, sec, tan, asin, asinh, acos, acosh, Function, Derivative, diff, \
+    simplify, trigsimp, LambertW, Eq, Piecewise, Symbol, Add, ratsimp
+from sympy.integrals.heurisch import components, trigrewrite, heurisch, heurisch_wrapper
 from sympy.utilities.pytest import XFAIL, skip, slow
 
 x, y, z, nu = symbols('x,y,z,nu')
@@ -24,6 +24,11 @@ def test_components():
         set([x, f(x), Derivative(f(x), x)])
     assert components(f(x)*diff(f(x), x), x) == \
         set([x, f(x), Derivative(f(x), x), Derivative(f(x), x)])
+
+
+def test_trigrewrite():
+    assert trigrewrite(sec(x)**2*log(cos(x))) == \
+        (tan(x/2)**2 + 1)**2*log((-tan(x/2)**2 + 1)/(tan(x/2)**2 + 1))/(-tan(x/2)**2 + 1)**2
 
 
 def test_heurisch_polynomials():
@@ -208,6 +213,17 @@ def test_heurisch_wrapper():
 def test_issue510():
     assert heurisch(1/(x * (1 + log(x)**2)), x) == \
         I*log(log(x) + I)/2 - I*log(log(x) - I)/2
+
+@slow
+def test_integrate_sec_with_rewrite():
+    f = sec(x)**2*log(cos(x))
+    g = -x + log(cos(x))*tan(x) + tan(x)
+
+    F = trigrewrite(f)
+    G = heurisch(F, x, extension=None)
+
+    assert simplify(G.diff(x) - F) == 0
+    assert trigsimp(G).rewrite(cos, tan).cancel() == g
 
 ### These are examples from the Poor Man's Integrator
 ### http://www-sop.inria.fr/cafe/Manuel.Bronstein/pmint/examples/

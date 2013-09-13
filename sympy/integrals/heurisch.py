@@ -12,7 +12,7 @@ from sympy.core.numbers import Rational, I, pi
 from sympy.core.relational import Eq
 from sympy.core.singleton import S
 
-from sympy.functions import exp, sin, cos, tan, cot, asin, atan
+from sympy.functions import exp, sin, cos, sec, csc, tan, cot, asin, atan
 from sympy.functions import log, sinh, cosh, tanh, coth, asinh, acosh
 from sympy.functions import sqrt, erf, erfi, li, Ei
 from sympy.functions.elementary.piecewise import Piecewise
@@ -229,6 +229,24 @@ def heurisch_apply_hints(hints, terms, x):
 
         else:
             terms |= set(hints)
+
+def trigrewrite(f):
+    """
+    Rewrite a function in terms of `tan(x)` and `tanh(x)`.
+
+    Certain trigonometric integrals are only computable by heuristic Risch
+    algorithm when rewritten in terms of `tan(x)` and `tanh(x)`. Although
+    rewrite of this kind will increase size of integrands, computation times
+    don't have to be longer, because there will be less monomials in the
+    candidate solutions (less functional components in integrands). An
+    example of this behaviour is: sec(x)**2*log(cos(x)).
+
+    """
+    f = f.rewrite(sec, cos, deep=True)
+    f = f.rewrite(csc, sin, deep=True)
+    f = f.rewrite((sin,  cos,  cot),  tan,  deep=True)
+    f = f.rewrite((sinh, cosh, coth), tanh, deep=True)
+    return f
 
 def heurisch(f, x, hints=None, extension=True, degree_offset=0):
     """
