@@ -94,7 +94,7 @@ def _symbols(name, n):
     return lsyms[:n]
 
 
-def heurisch_wrapper(f, x, hints=None, degree_offset=0):
+def heurisch_wrapper(f, x, hints=None, extension=True, degree_offset=0):
     """
     A wrapper around the heurisch integration algorithm.
 
@@ -123,7 +123,7 @@ def heurisch_wrapper(f, x, hints=None, degree_offset=0):
     if x not in f.free_symbols:
         return f*x
 
-    res = heurisch(f, x, hints, degree_offset)
+    res = heurisch(f, x, hints, extension, degree_offset)
     if not isinstance(res, Basic):
         return res
     # We consider each denominator in the expression, and try to find
@@ -156,10 +156,10 @@ def heurisch_wrapper(f, x, hints=None, degree_offset=0):
     # For each case listed in the list slns, we reevaluate the integral.
     pairs = []
     for sub_dict in slns:
-        expr = heurisch(f.subs(sub_dict), x, hints, degree_offset)
+        expr = heurisch(f.subs(sub_dict), x, hints, extension, degree_offset)
         cond = And(*[Eq(key, value) for key, value in sub_dict.items()])
         pairs.append((expr, cond))
-    pairs.append((heurisch(f, x, hints, degree_offset), True))
+    pairs.append((heurisch(f, x, hints, extension, degree_offset), True))
     return Piecewise(*pairs)
 
 def heurisch_apply_hints(hints, terms, x):
@@ -230,7 +230,7 @@ def heurisch_apply_hints(hints, terms, x):
         else:
             terms |= set(hints)
 
-def heurisch(f, x, hints=None, degree_offset=0):
+def heurisch(f, x, hints=None, extension=True, degree_offset=0):
     """
     Compute indefinite integral using heuristic Risch algorithm.
 
@@ -255,7 +255,7 @@ def heurisch(f, x, hints=None, degree_offset=0):
     Specification
     =============
 
-     heurisch(f, x, hints=None)
+     heurisch(f, x, hints=None, extension=True)
 
        where
          f : expression
@@ -509,10 +509,13 @@ def heurisch(f, x, hints=None, degree_offset=0):
             solution = [ (k.as_expr(), v.as_expr()) for k, v in solution.items() ]
             return candidate.subs(solution).subs(list(zip(coeffs, [S.Zero]*len(coeffs))))
 
-    solution = _integrate()
+    if extension is not True:
+        solution = _integrate(extension)
+    else:
+        solution = _integrate()
 
-    if solution is None:
-        solution = _integrate(I)
+        if solution is None:
+            solution = _integrate(I)
 
     if solution is None:
         return None
